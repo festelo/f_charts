@@ -68,6 +68,19 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    initLayers();
+  }
+
+  @override
+  void didUpdateWidget(Chart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.chartData != widget.chartData) {
+      initLayers();
+      return;
+    }
+  }
+
+  void initLayers() {
     baseLayer = ChartDrawBaseLayer.calculate(widget.chartData, widget.theme);
     interactionLayer = ChartInteractionLayer.calculate(widget.chartData, widget.theme,
       pointPressed: widget.pointPressed,
