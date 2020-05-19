@@ -26,14 +26,11 @@ class Chart extends StatefulWidget {
 }
 
 class ChartPaint extends CustomPainter {
-
-  final VoidCallback pointPressed;
   final EdgeInsets chartPadding;
   final List<Layer> layers;
 
   ChartPaint({
     this.layers,
-    this.pointPressed,
     this.chartPadding = const EdgeInsets.all(50),
   });
 
@@ -46,17 +43,12 @@ class ChartPaint extends CustomPainter {
 
   @override
   bool hitTest(Offset position) {
-    if (pointPressed == null) return super.hitTest(position);
-    /*
-    for (final o in points) {
-      final diff = o - position;
-      if (diff.dx < 20 && diff.dy < 20 && diff.dx > -20 && diff.dy > -20) {
-        pointPressed();
-        return true;
-      }
+    var hitted = false;
+    for(final l in layers) {
+      if(l.hitTest(position))
+        hitted = true;
     }
-    */
-    return super.hitTest(position);
+    return hitted;
   }
 
   @override
@@ -77,7 +69,9 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     baseLayer = ChartDrawBaseLayer.calculate(widget.chartData, widget.theme);
-    interactionLayer = ChartInteractionLayer.calculate(widget.chartData, widget.theme);
+    interactionLayer = ChartInteractionLayer.calculate(widget.chartData, widget.theme,
+      pointPressed: widget.pointPressed,
+    );
     decorationLayer = ChartDecorationLayer.calculate(widget.chartData, widget.theme);
   }
 
@@ -113,7 +107,6 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
               interactionLayer,
             ],
             //xPointerLine: xPointerLine,
-            pointPressed: widget.pointPressed,
           ),
           child: GestureDetector(
             onHorizontalDragDown: (d) {

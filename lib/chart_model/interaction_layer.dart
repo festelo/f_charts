@@ -11,18 +11,50 @@ import 'package:flutter/painting.dart';
 
 import 'theme.dart';
 
-class ChartInteractionLayer implements Layer {
+class ChartInteractionLayer extends Layer {
   double xPosition;
   final ChartTheme theme;
   final List<RelativeLine> lines;
+  final List<RelativePoint> points;
+
+  final void Function() pointPressed;
+
+  Size cachedSize;
+  List<Pair<Offset>> cachedAbsoluteLines;
+  List<Offset> cachedAbsolutePoints;
+
+  void recalculateCache(Size size) {
+    cachedAbsoluteLines = lines.map((c) => Pair(c.a.toOffset(size), c.b.toOffset(size))).toList();
+    cachedAbsolutePoints = points.map((c) => c.offset.toOffset(size)).toList();
+    cachedSize = size;
+  }
+
+  List<Pair<Offset>> retrieveAbsoluteLines(Size size) {
+    if (size != cachedSize) {
+      recalculateCache(size);
+    }
+    return cachedAbsoluteLines;
+  }
+
+  List<Pair<Offset>> retrieveAbsolutePoints(Size size) {
+    if (size != cachedSize) {
+      recalculateCache(size);
+    }
+    return cachedAbsoluteLines;
+  }
 
   ChartInteractionLayer({
     this.theme,
+    this.pointPressed,
     List<RelativeLine> lines,
+    List<RelativePoint> points
   }) : assert(theme != null),
-    lines = lines ?? [];
+    lines = lines ?? [],
+    points = points ?? [];
 
-  factory ChartInteractionLayer.calculate(ChartData data, ChartTheme theme) {
+  factory ChartInteractionLayer.calculate(ChartData data, ChartTheme theme, {
+    void Function() pointPressed
+  }) {
     final maxYEntity = data.maxOrdinate();
     final minYEntity = data.minOrdinate();
     final maxXEntity = data.maxAbscissa();
@@ -31,7 +63,7 @@ class ChartInteractionLayer implements Layer {
     final maxY = maxYEntity.ordinate.stepValue(minYEntity.ordinate.value);
     final maxX = maxXEntity.abscissa.stepValue(minXEntity.abscissa.value);
 
-    final layer = ChartInteractionLayer(theme: theme);
+    final layer = ChartInteractionLayer(theme: theme, pointPressed: pointPressed);
     final viewportSize = Size(maxX, maxY);
 
     final abscissaLimits =
@@ -40,7 +72,7 @@ class ChartInteractionLayer implements Layer {
         Pair(minYEntity.ordinate.value, maxYEntity.ordinate.value);
 
     for (final s in data.series) {
-      layer._placeLines(
+      layer._placeSeries(
         abscissaLimits: abscissaLimits,
         ordinataLimits: ordinataLimits,
         series: s,
@@ -50,7 +82,7 @@ class ChartInteractionLayer implements Layer {
     return layer;
   }
 
-  void _placeLines({
+  void _placeSeries({
     ChartSeries series,
     Pair<dynamic> abscissaLimits,
     Pair<dynamic> ordinataLimits,
@@ -63,18 +95,41 @@ class ChartInteractionLayer implements Layer {
     }
 
     if (series.entities.isEmpty) return;
-
+    RelativeOffset bo;
+    
     for (var i = 1; i < series.entities.length; i++) {
       var a = series.entities[i - 1];
       var b = series.entities[i];
-      placeLine(entityToOffset(a), entityToOffset(b));
+      final ao = entityToOffset(a);
+      bo = entityToOffset(b);
+      placeLine(ao, bo);
+      placePoint(ao);
     }
+    placePoint(bo ?? entityToOffset(series.entities[0]));
   }
 
   void placeLine(RelativeOffset a, RelativeOffset b) {
-    if (theme.line == null) return;
-    lines.add(
-        RelativeLine(a, b, color: theme.line.color, width: theme.line.width));
+    lines.add(RelativeLine(a, b));
+  }
+
+  void placePoint(RelativeOffset o) {
+    points.add(RelativePoint(o, radius: theme.point.radius));
+  }
+
+  @override
+  bool hitTest(Offset position) {
+    if (pointPressed == null || cachedAbsolutePoints == null || cachedAbsolutePoints.isEmpty) 
+      return super.hitTest(position);
+
+    for (final o in cachedAbsolutePoints) {
+      final diff = o - position;
+      if (diff.dx < 20 && diff.dy < 20 && diff.dx > -20 && diff.dy > -20) {
+        pointPressed();
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @override
@@ -114,13 +169,8 @@ class ChartInteractionLayer implements Layer {
       ).createShader(offset & gradientSize);
   }
 
-  Size oldSize;
-  List<Pair<Offset>> cachedAbsoluteLines;
   void _drawXHightlight(Canvas canvas, Size size) {
-    final absoluteLines = cachedAbsoluteLines = size == oldSize 
-      ? cachedAbsoluteLines
-      : lines.map((c) => Pair(c.a.toOffset(size), c.b.toOffset(size))).toList();
-    oldSize = size;
+    final absoluteLines = retrieveAbsoluteLines(size);
     for (var i = 0; i < lines.length; i++) {
       final line = absoluteLines[i];
       final xHighlightLine = Pair(

@@ -6,7 +6,7 @@ import 'package:f_charts/model/stuff.dart';
 
 import 'theme.dart';
 
-class ChartDecorationLayer implements Layer {
+class ChartDecorationLayer extends Layer {
   final List<RelativeLine> yAxisMarkers;
   RelativeLine _xAxisLine;
   RelativeLine _yAxisLine;

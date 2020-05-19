@@ -100,7 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Chart(
           chartData: data[dataNum],
-          pointPressed: () => setState(() => dataNum = (dataNum+1) % data.length),
+          pointPressed: () => setState(() => 
+            dataNum = (dataNum+1) % data.length),
         ),
       ),
     );

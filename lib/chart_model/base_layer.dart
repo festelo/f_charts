@@ -6,7 +6,7 @@ import 'package:f_charts/model/stuff.dart';
 
 import 'theme.dart';
 
-class ChartDrawBaseLayer implements Layer {
+class ChartDrawBaseLayer extends Layer {
   final List<RelativePoint> points;
   final List<RelativeLine> lines;
 
