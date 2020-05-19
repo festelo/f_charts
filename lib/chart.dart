@@ -1,0 +1,139 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:f_charts/chart_model/base_layer.dart';
+import 'package:f_charts/chart_model/decoration_layer.dart';
+import 'package:f_charts/chart_model/interaction_layer.dart';
+import 'package:f_charts/chart_model/theme.dart';
+import 'package:f_charts/model/base.dart';
+import 'package:f_charts/utils.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+
+import 'chart_model/layer.dart';
+import 'model/impl.dart';
+import 'model/stuff.dart';
+import 'dart:ui' as ui;
+
+class Chart extends StatefulWidget {
+  final ChartData chartData;
+  final VoidCallback pointPressed;
+  final ChartTheme theme;
+
+  Chart({this.chartData, this.theme = const ChartTheme(), this.pointPressed});
+  @override
+  _ChartState createState() => _ChartState();
+}
+
+class ChartPaint extends CustomPainter {
+
+  final VoidCallback pointPressed;
+  final EdgeInsets chartPadding;
+  final List<Layer> layers;
+
+  ChartPaint({
+    this.layers,
+    this.pointPressed,
+    this.chartPadding = const EdgeInsets.all(50),
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for(final layer in layers) {
+      layer.draw(canvas, size);
+    }
+  }
+
+  @override
+  bool hitTest(Offset position) {
+    if (pointPressed == null) return super.hitTest(position);
+    /*
+    for (final o in points) {
+      final diff = o - position;
+      if (diff.dx < 20 && diff.dy < 20 && diff.dx > -20 && diff.dy > -20) {
+        pointPressed();
+        return true;
+      }
+    }
+    */
+    return super.hitTest(position);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
+  }
+}
+
+class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
+  Offset offset = Offset(0, 0);
+  Ticker animationTicker;
+
+  ChartDrawBaseLayer baseLayer;
+  ChartInteractionLayer interactionLayer;
+  ChartDecorationLayer decorationLayer;
+
+  @override
+  void initState() {
+    super.initState();
+    baseLayer = ChartDrawBaseLayer.calculate(widget.chartData, widget.theme);
+    interactionLayer = ChartInteractionLayer.calculate(widget.chartData, widget.theme);
+    decorationLayer = ChartDecorationLayer.calculate(widget.chartData, widget.theme);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    animationTicker?.dispose();
+  }
+
+  void startAnimation() {
+    if (animationTicker?.isActive ?? false) 
+      throw Exception('Animation already in progress');
+    animationTicker = createTicker(onTick);
+    animationTicker.start();
+  }
+
+  void onTick(Duration elapse) {
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(border: Border.all(width: 1)),
+      padding: EdgeInsets.all(20),
+      child: GestureDetector(
+        child: CustomPaint(
+          size: Size.infinite,
+          foregroundPainter: ChartPaint(
+            layers: [
+              decorationLayer,
+              baseLayer,
+              interactionLayer,
+            ],
+            //xPointerLine: xPointerLine,
+            pointPressed: widget.pointPressed,
+          ),
+          child: GestureDetector(
+            onHorizontalDragDown: (d) {
+              setState(() {
+                interactionLayer.xPosition = d.localPosition.dx;
+              });
+            },
+            onHorizontalDragEnd: (d) {
+              setState(() {
+                interactionLayer.xPosition = null;
+              });
+            },
+            onHorizontalDragUpdate: (d) {
+              setState(() {
+                interactionLayer.xPosition = d.localPosition.dx;
+              });
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
