@@ -20,6 +20,26 @@ class ChartTheme {
     this.point = const CircleTheme(),
     this.yMarkersCount = 5,
   });
+
+  ChartTheme copyWith({
+    LineTheme xPointer,
+    LineTheme yMarker,
+    int yMarkersCount,
+    LineTheme line,
+    LineTheme xAxis,
+    LineTheme yAxis,
+    CircleTheme point,
+  }) {
+    return ChartTheme(
+      xPointer: xPointer ?? this.xPointer,
+      yMarker: yMarker ?? this.yMarker,
+      yMarkersCount: yMarkersCount ?? this.yMarkersCount,
+      line: line ?? this.line,
+      xAxis: xAxis ?? this.xAxis,
+      yAxis: yAxis ?? this.yAxis,
+      point: point ?? this.point,
+    );
+  }
 }
 
 class LineTheme {

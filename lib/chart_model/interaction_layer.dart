@@ -55,44 +55,19 @@ class ChartInteractionLayer extends Layer {
   factory ChartInteractionLayer.calculate(ChartData data, ChartTheme theme, {
     void Function() pointPressed
   }) {
-    final maxYEntity = data.maxOrdinate();
-    final minYEntity = data.minOrdinate();
-    final maxXEntity = data.maxAbscissa();
-    final minXEntity = data.minAbscissa();
-
-    final maxY = maxYEntity.ordinate.stepValue(minYEntity.ordinate.value);
-    final maxX = maxXEntity.abscissa.stepValue(minXEntity.abscissa.value);
-
+    final bounds = data.getBounds();
     final layer = ChartInteractionLayer(theme: theme, pointPressed: pointPressed);
-    final viewportSize = Size(maxX, maxY);
-
-    final abscissaLimits =
-        Pair(minXEntity.abscissa.value, maxXEntity.abscissa.value);
-    final ordinataLimits =
-        Pair(minYEntity.ordinate.value, maxYEntity.ordinate.value);
 
     for (final s in data.series) {
-      layer._placeSeries(
-        abscissaLimits: abscissaLimits,
-        ordinataLimits: ordinataLimits,
-        series: s,
-        viewportSize: viewportSize,
-      );
+      layer._placeSeries(s, bounds);
     }
     return layer;
   }
 
-  void _placeSeries({
+  void _placeSeries(
     ChartSeries series,
-    Pair<dynamic> abscissaLimits,
-    Pair<dynamic> ordinataLimits,
-    Size viewportSize,
-  }) {
-    RelativeOffset entityToOffset(ChartEntity e) {
-      var ex = e.abscissa.stepValue(abscissaLimits.a);
-      var ey = e.ordinate.stepValue(ordinataLimits.a);
-      return RelativeOffset(ex, ey, viewportSize).reverseY();
-    }
+    ChartBounds bounds,
+  ) {
 
     if (series.entities.isEmpty) return;
     RelativeOffset bo;
@@ -100,12 +75,12 @@ class ChartInteractionLayer extends Layer {
     for (var i = 1; i < series.entities.length; i++) {
       var a = series.entities[i - 1];
       var b = series.entities[i];
-      final ao = entityToOffset(a);
-      bo = entityToOffset(b);
+      final ao = a.toRelativeOffset(bounds);
+      bo = b.toRelativeOffset(bounds);
       placeLine(ao, bo);
       placePoint(ao);
     }
-    placePoint(bo ?? entityToOffset(series.entities[0]));
+    placePoint(bo ?? series.entities[0].toRelativeOffset(bounds));
   }
 
   void placeLine(RelativeOffset a, RelativeOffset b) {
@@ -189,17 +164,30 @@ class ChartInteractionLayer extends Layer {
           20,
         );
         canvas.drawLine(
-          Offset(partPointLeft.x, partPointLeft.y),
-          Offset(cross.x, cross.y),
-          _gradientPaint(Size(cross.x - partPointLeft.x, cross.y - partPointLeft.y), Offset(partPointLeft.x, partPointLeft.y), true),
+          Offset(partPointLeft.x.toDouble(), partPointLeft.y.toDouble()),
+          Offset(cross.x.toDouble(), cross.y.toDouble()),
+          _gradientPaint(
+            Size(
+              (cross.x - partPointLeft.x).toDouble(), 
+              (cross.y - partPointLeft.y).toDouble()
+            ), 
+            Offset(partPointLeft.x.toDouble(), partPointLeft.y.toDouble()), 
+            true
+          ),
         );
         canvas.drawLine(
-          Offset(partPointRight.x, partPointRight.y),
-          Offset(cross.x, cross.y),
-          _gradientPaint(Size(partPointRight.x - cross.x, partPointRight.y - cross.y), Offset(cross.x, cross.y)),
+          Offset(partPointRight.x.toDouble(), partPointRight.y.toDouble()),
+          Offset(cross.x.toDouble(), cross.y.toDouble()),
+          _gradientPaint(
+            Size(
+              (partPointRight.x - cross.x).toDouble(), 
+              (partPointRight.y - cross.y).toDouble()
+            ), 
+            Offset(cross.x.toDouble(), cross.y.toDouble())
+          ),
         );
         canvas.drawCircle(
-          Offset(cross.x, cross.y),
+          Offset(cross.x.toDouble(), cross.y.toDouble()),
           5,
           Paint()..color = Colors.cyanAccent,
         );

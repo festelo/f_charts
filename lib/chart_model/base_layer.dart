@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:f_charts/chart_model/layer.dart';
+import 'package:f_charts/extensions.dart';
 import 'package:f_charts/model/base.dart';
 import 'package:f_charts/model/stuff.dart';
 
@@ -21,44 +22,19 @@ class ChartDrawBaseLayer extends Layer {
         lines = lines ?? [];
 
   factory ChartDrawBaseLayer.calculate(ChartData data, ChartTheme theme) {
-    final maxYEntity = data.maxOrdinate();
-    final minYEntity = data.minOrdinate();
-    final maxXEntity = data.maxAbscissa();
-    final minXEntity = data.minAbscissa();
-
-    final maxY = maxYEntity.ordinate.stepValue(minYEntity.ordinate.value);
-    final maxX = maxXEntity.abscissa.stepValue(minXEntity.abscissa.value);
-
+    final bounds = data.getBounds();
     final layer = ChartDrawBaseLayer(theme: theme);
-    final viewportSize = Size(maxX, maxY);
-
-    final abscissaLimits =
-        Pair(minXEntity.abscissa.value, maxXEntity.abscissa.value);
-    final ordinataLimits =
-        Pair(minYEntity.ordinate.value, maxYEntity.ordinate.value);
 
     for (final s in data.series) {
-      layer._placeSeries(
-        abscissaLimits: abscissaLimits,
-        ordinataLimits: ordinataLimits,
-        series: s,
-        viewportSize: viewportSize,
-      );
+      layer._placeSeries(s, bounds);
     }
     return layer;
   }
 
-  void _placeSeries({
+  void _placeSeries(
     ChartSeries series,
-    Pair<dynamic> abscissaLimits,
-    Pair<dynamic> ordinataLimits,
-    Size viewportSize,
-  }) {
-    RelativeOffset entityToOffset(ChartEntity e) {
-      var ex = e.abscissa.stepValue(abscissaLimits.a);
-      var ey = e.ordinate.stepValue(ordinataLimits.a);
-      return RelativeOffset(ex, ey, viewportSize).reverseY();
-    }
+    ChartBounds bounds,
+  ) {
 
     if (series.entities.isEmpty) return;
     RelativeOffset bo;
@@ -66,12 +42,12 @@ class ChartDrawBaseLayer extends Layer {
     for (var i = 1; i < series.entities.length; i++) {
       var a = series.entities[i - 1];
       var b = series.entities[i];
-      final ao = entityToOffset(a);
-      bo = entityToOffset(b);
+      final ao = a.toRelativeOffset(bounds);
+      bo = b.toRelativeOffset(bounds);
       placeLine(ao, bo, series.color);
       placePoint(ao, series.color);
     }
-    placePoint(bo ?? entityToOffset(series.entities[0]), series.color);
+    placePoint(bo ?? series.entities[0].toRelativeOffset(bounds), series.color);
   }
 
   void placePoint(RelativeOffset o, Color color) {

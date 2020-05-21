@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'dart:ui';
 
+import 'package:f_charts/model/base.dart';
+
 import 'model/stuff.dart';
 
 extension OffsetExtenstions on Offset {
@@ -16,10 +18,29 @@ extension OffsetPairExtenstions on Pair<Offset> {
   }
 }
 extension PointPairExtenstions on Pair<Point> {
-  double get x1 => this.a.x;
-  double get x2 => this.b.x;
-  double get y1 => this.a.y;
-  double get y2 => this.b.y;
+  num get x1 => this.a.x;
+  num get x2 => this.b.x;
+  num get y1 => this.a.y;
+  num get y2 => this.b.y;
+}
+
+extension ChartBoundsExtensions<T1, T2> on ChartBounds<T1, T2> {
+  double get maxOrdinateStep {
+    return this.maxOrdinate.stepValue(this.minOrdinate.value);
+  }
+  double get maxAbscissaStep {
+    return this.maxAbscissa.stepValue(this.minAbscissa.value);
+  }
+}
+
+extension ChartSeriesExtensions<T1, T2> on ChartEntity<Measure<T1>, Measure<T2>> {
+  RelativeOffset toRelativeOffset(ChartBounds<T1, T2> bounds) {
+    return RelativeOffset(
+      this.abscissa.stepValue(bounds.minAbscissa.value),
+      this.ordinate.stepValue(bounds.minOrdinate.value), 
+      Size(bounds.maxAbscissaStep, bounds.maxOrdinateStep)
+    ).reverseY();
+  }
 }
 
 kek() {}

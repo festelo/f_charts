@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:f_charts/chart.dart';
+import 'package:f_charts/chart_model/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'model/base.dart';
@@ -65,31 +66,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
   var data = [
     ChartData([
-      ChartSeries(color: Colors.red, entities: [
-        DateIntChartEntity(DateTime.now().add(Duration(days: 0)), 1),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 1)), 3),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 3)), 2),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 5)), 4),
+      ChartSeries(color: Colors.red, name: '1', entities: [
+        IntChartEntity(0, 1),
+        IntChartEntity(1, 2),
+        IntChartEntity(3, 1),
+        IntChartEntity(4, 0),
       ]),
-      ChartSeries(color: Colors.orange, entities: [
-        DateIntChartEntity(DateTime.now().add(Duration(days: 0)), 1),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 1)), 5),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 3)), 2),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 4)), 1),
+      ChartSeries(color: Colors.orange, name: '2', entities: [
+        IntChartEntity(1, 1),
+        IntChartEntity(3, 5),
+        IntChartEntity(4, 6),
       ]),
     ]),
     ChartData([
-      ChartSeries(color: Colors.red, entities: [
-        DateIntChartEntity(DateTime.now().add(Duration(days: 0)), 5),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 1)), 2),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 3)), 6),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 5)), 2),
+      ChartSeries(color: Colors.red, name: '1', entities: [
+        IntChartEntity(0, 3),
+        IntChartEntity(1, 0),
+        IntChartEntity(4, 5),
       ]),
-      ChartSeries(color: Colors.orange, entities: [
-        DateIntChartEntity(DateTime.now().add(Duration(days: 0)), 1),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 1)), 5),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 3)), 2),
-        DateIntChartEntity(DateTime.now().add(Duration(days: 4)), 1),
+      ChartSeries(color: Colors.orange, name: '2', entities: [
+        IntChartEntity(1, 1),
+        IntChartEntity(2, 3),
+        IntChartEntity(3, 1),
+        IntChartEntity(4, 2),
       ]),
     ]),
   ];
@@ -99,6 +98,9 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Center(
         child: Chart(
+          theme: ChartTheme().copyWith(
+            yMarkersCount: 6
+          ),
           chartData: data[dataNum],
           pointPressed: () => setState(() => 
             dataNum = (dataNum+1) % data.length),

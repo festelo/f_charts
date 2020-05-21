@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:f_charts/chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 
@@ -23,6 +24,66 @@ class RelativeOffset {
   RelativeOffset reverseX() => copy()..dx = viewportSize.width - dx;
 
   RelativeOffset withPadding(EdgeInsets insets) => copy()..padding = insets;
+
+  RelativeOffset operator +(Object other) { 
+    if (other is RelativeOffset) {
+      assert(other.viewportSize == this.viewportSize);
+      return copy()
+        ..dx = dx + other.dx
+        ..dy = dy + other.dy;
+    } else if (other is num) {
+      return copy()
+        ..dx = dx + other
+        ..dy = dy + other;
+    } else {
+      throw Exception('RelativeOffset or num expected');
+    }
+  }
+
+  RelativeOffset operator -(Object other) { 
+    if (other is RelativeOffset) {
+      assert(other.viewportSize == this.viewportSize);
+      return copy()
+        ..dx = dx - other.dx
+        ..dy = dy - other.dy;
+    } else if (other is num) {
+      return copy()
+        ..dx = dx - other
+        ..dy = dy - other;
+    } else {
+      throw Exception('RelativeOffset or num expected');
+    }
+  }
+
+  RelativeOffset operator *(Object other) {
+    if (other is RelativeOffset) {
+      assert(other.viewportSize == this.viewportSize);
+      return copy()
+        ..dx = dx * other.dx
+        ..dy = dy * other.dy;
+    } else if (other is num) {
+      return copy()
+        ..dx = dx * other
+        ..dy = dy * other;
+    } else {
+      throw Exception('RelativeOffset or num expected');
+    }
+  }
+
+  RelativeOffset operator /(Object other) { 
+    if (other is RelativeOffset) {
+      assert(other.viewportSize == this.viewportSize);
+      return copy()
+        ..dx = dx / other.dx
+        ..dy = dy / other.dy;
+    } else if (other is num) {
+      return copy()
+        ..dx = dx / other
+        ..dy = dy / other;
+    } else {
+      throw Exception('RelativeOffset or num expected');
+    }
+  }
 
   Offset toOffset(Size size) {
     if (padding == null) {
@@ -46,6 +107,9 @@ class Pair<T> {
   final T a;
   final T b;
   Pair(this.a, this.b);
+
+  @override
+  String toString() => 'Pair($a, $b)';
 }
 
 class RelativeLine {

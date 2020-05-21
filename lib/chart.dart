@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:f_charts/chart_model/base_layer.dart';
 import 'package:f_charts/chart_model/decoration_layer.dart';
 import 'package:f_charts/chart_model/interaction_layer.dart';
+import 'package:f_charts/chart_model/move_layer.dart';
 import 'package:f_charts/chart_model/theme.dart';
 import 'package:f_charts/model/base.dart';
 import 'package:f_charts/utils.dart';
@@ -59,7 +60,10 @@ class ChartPaint extends CustomPainter {
 
 class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   Offset offset = Offset(0, 0);
-  Ticker animationTicker;
+  
+  AnimationController moveAnimationController;
+  MoveAnimation moveAnimation;
+  ChartMoveLayer moveLayer;
 
   ChartDrawBaseLayer baseLayer;
   ChartInteractionLayer interactionLayer;
@@ -69,15 +73,38 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     initLayers();
+    moveAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 3)
+    );
+    moveAnimationController.addListener(() { setState(() {}); });
   }
 
   @override
   void didUpdateWidget(Chart oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chartData != widget.chartData) {
-      initLayers();
+      startAnimation(oldWidget.chartData, widget.chartData);
       return;
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    moveAnimationController?.dispose();
+  }
+
+  Future<void> startAnimation(ChartData from, ChartData to) async {
+    moveAnimation = MoveAnimation.between(from, to);
+    moveLayer = ChartMoveLayer(
+      animation: moveAnimation,
+      parent: moveAnimationController,
+      theme: widget.theme
+    );
+    await moveAnimationController.forward(from: 0);
+    initLayers();
+    setState(() { });
   }
 
   void initLayers() {
@@ -86,23 +113,6 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
       pointPressed: widget.pointPressed,
     );
     decorationLayer = ChartDecorationLayer.calculate(widget.chartData, widget.theme);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    animationTicker?.dispose();
-  }
-
-  void startAnimation() {
-    if (animationTicker?.isActive ?? false) 
-      throw Exception('Animation already in progress');
-    animationTicker = createTicker(onTick);
-    animationTicker.start();
-  }
-
-  void onTick(Duration elapse) {
-    return null;
   }
 
   @override
@@ -116,8 +126,11 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
           foregroundPainter: ChartPaint(
             layers: [
               decorationLayer,
-              baseLayer,
+              if (!moveAnimationController.isAnimating)
+                baseLayer,
               interactionLayer,
+              if (moveAnimationController.isAnimating) 
+                moveLayer
             ],
             //xPointerLine: xPointerLine,
           ),

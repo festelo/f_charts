@@ -1,11 +1,11 @@
 import 'dart:ui';
 
-class ChartData<TAbscissa  extends Measure, TOrdinate extends Measure, TChartEntity extends ChartEntity<TAbscissa, TOrdinate>> {
+class ChartData<TAbscissa, TOrdinate, TChartEntity extends ChartEntity<Measure<TAbscissa>, Measure<TOrdinate>>> {
   final List<ChartSeries<TAbscissa, TOrdinate, TChartEntity>> series;
   const ChartData(this.series);
 
-  ChartEntity<TAbscissa, TOrdinate> minOrdinate() {
-    ChartEntity<TAbscissa, TOrdinate> min;
+  TChartEntity minOrdinateEntity() {
+    TChartEntity min;
     for (final s in series) {
       final localMin = s.minOrdinate();
       if (min == null) min = localMin;
@@ -15,8 +15,8 @@ class ChartData<TAbscissa  extends Measure, TOrdinate extends Measure, TChartEnt
     return min;
   }
 
-  ChartEntity<TAbscissa, TOrdinate> maxOrdinate() {
-    ChartEntity<TAbscissa, TOrdinate> max;
+  TChartEntity maxOrdinateEntity() {
+    TChartEntity max;
     for (final s in series) {
       final localMax = s.maxOrdinate();
       if (max == null) max = localMax;
@@ -26,8 +26,8 @@ class ChartData<TAbscissa  extends Measure, TOrdinate extends Measure, TChartEnt
     return max;
   }
 
-  ChartEntity<TAbscissa, TOrdinate> minAbscissa() {
-    ChartEntity<TAbscissa, TOrdinate> min;
+  TChartEntity minAbscissaEntity() {
+    TChartEntity min;
     for (final s in series) {
       final localMin = s.minAbscissa();
       if (min == null) min = localMin;
@@ -37,8 +37,8 @@ class ChartData<TAbscissa  extends Measure, TOrdinate extends Measure, TChartEnt
     return min;
   }
 
-  ChartEntity<TAbscissa, TOrdinate> maxAbscissa() {
-    ChartEntity<TAbscissa, TOrdinate> max;
+  TChartEntity maxAbscissaEntity() {
+    TChartEntity max;
     for (final s in series) {
       final localMax = s.maxAbscissa();
       if (max == null) max = localMax;
@@ -47,10 +47,19 @@ class ChartData<TAbscissa  extends Measure, TOrdinate extends Measure, TChartEnt
     }
     return max;
   }
+
+  ChartBounds<TAbscissa, TOrdinate> getBounds() {
+    return ChartBounds(
+      minAbscissaEntity().abscissa, 
+      maxAbscissaEntity().abscissa, 
+      minOrdinateEntity().ordinate, 
+      maxOrdinateEntity().ordinate
+    );
+  }
 }
 
 
-class ChartSeries<TAbscissa extends Measure, TOrdinate extends Measure, TEntity extends ChartEntity<TAbscissa, TOrdinate>> {
+class ChartSeries<TAbscissa, TOrdinate, TEntity extends ChartEntity<Measure<TAbscissa>, Measure<TOrdinate>>> {
   final List<TEntity> entities;
   final Color color;
   final String name;
@@ -72,6 +81,15 @@ class ChartSeries<TAbscissa extends Measure, TOrdinate extends Measure, TEntity 
   TEntity maxAbscissa() {
     return entities.reduce((a, b) => a.abscissa.compareTo(b.abscissa) > 0 ? a : b);
   }
+}
+
+class ChartBounds<TAbscissa, TOrdinate> {
+  final Measure<TAbscissa> minAbscissa;
+  final Measure<TAbscissa> maxAbscissa;
+  final Measure<TOrdinate> minOrdinate;
+  final Measure<TOrdinate> maxOrdinate;
+
+  ChartBounds(this.minAbscissa, this.maxAbscissa, this.minOrdinate, this.maxOrdinate);
 }
 
 abstract class ChartEntity<TAbscissa extends Measure, TOrdinate extends Measure> {

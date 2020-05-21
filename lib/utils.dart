@@ -13,7 +13,7 @@ Point intersection(Pair<Point> l1, Pair<Point> l2) {
   var b2 = l2.a.x - l2.b.x;
   var c2 = a2 * l2.a.x + b2 * l2.a.y;
 
-  double delta = a1 * b2 - a2 * b1;
+  double delta = (a1 * b2 - a2 * b1).toDouble();
 
   if (delta == 0) 
       return null;
