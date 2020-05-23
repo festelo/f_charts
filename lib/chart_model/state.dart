@@ -1,0 +1,3 @@
+class ChartStateInfo {
+  bool isAnimating;
+}

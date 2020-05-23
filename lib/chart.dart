@@ -11,6 +11,7 @@ import 'package:f_charts/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import 'chart_animation/move_animation.dart';
 import 'chart_model/layer.dart';
 import 'model/impl.dart';
 import 'model/stuff.dart';
@@ -96,7 +97,12 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   }
 
   Future<void> startAnimation(ChartData from, ChartData to) async {
-    moveAnimation = MoveAnimation.between(from, to);
+    moveAnimation = MoveAnimation.between(
+      from: from,
+      to: to,
+      builder: (bounds, from, to) =>
+          AnimatedSeries.curve(bounds: bounds, from: from, to: to),
+    );
     moveLayer = ChartMoveLayer(
       animation: moveAnimation,
       parent: moveAnimationController,
