@@ -28,8 +28,13 @@ extension ChartBoundsExtensions<T1, T2> on ChartBounds<T1, T2> {
   double get maxOrdinateStep {
     return this.maxOrdinate.stepValue(this.minOrdinate.value);
   }
+
   double get maxAbscissaStep {
     return this.maxAbscissa.stepValue(this.minAbscissa.value);
+  }
+
+  Size toSize() {
+    return Size(this.maxAbscissaStep, this.maxOrdinateStep);
   }
 }
 
@@ -38,7 +43,7 @@ extension ChartSeriesExtensions<T1, T2> on ChartEntity<Measure<T1>, Measure<T2>>
     return RelativeOffset(
       this.abscissa.stepValue(bounds.minAbscissa.value),
       this.ordinate.stepValue(bounds.minOrdinate.value), 
-      viewportSize: Size(bounds.maxAbscissaStep, bounds.maxOrdinateStep)
+      viewportSize: bounds.toSize()
     ).reverseY();
   }
 }

@@ -81,6 +81,8 @@ class RelativeOffset {
       throw Exception('RelativeOffset or num expected');
     }
   }
+  RelativeOffset copy() =>
+      RelativeOffset(dx, dy, viewportSize: viewportSize);
 
   Offset toOffset(Size size) {
     final scaled = copy()..scaleTo(size);
@@ -88,8 +90,8 @@ class RelativeOffset {
   }
 
   void scaleTo(Size viewportSize) {
-    dx = (dx / viewportSize.width) * viewportSize.width;
-    dy = (dy / viewportSize.height) * viewportSize.height;
+    dx = (dx / this.viewportSize.width) * viewportSize.width;
+    dy = (dy / this.viewportSize.height) * viewportSize.height;
     viewportSize = viewportSize;
   }
   
@@ -102,8 +104,6 @@ class RelativeOffset {
   @override
   int get hashCode => hash3(dx, dy, viewportSize);
 
-  RelativeOffset copy() =>
-      RelativeOffset(dx, dy, viewportSize: viewportSize);
 
   @override
   String toString() => '($dx; $dy) at (${viewportSize.height}; ${viewportSize.width})';

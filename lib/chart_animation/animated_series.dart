@@ -76,6 +76,8 @@ class AnimatedSeries {
             ?.map((e) => e.toRelativeOffset(boundsTo))
             ?.toList() ??
         [];
+    final sizeFrom = boundsFrom.toSize();
+    for(final toOffset in toOffsets) { toOffset.viewportSize = sizeFrom; }
     final directIntersactions =
         _findSeriesIntersactions(fromOffsets, toOffsets);
     final reverseIntersactions =
