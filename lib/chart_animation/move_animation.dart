@@ -7,13 +7,12 @@ import 'package:f_charts/utils.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 
-List<Animatable<RelativeOffset>> _findIntersactionsAndBuild(
-  AnimatableBuilder builder,
+List<Pair<RelativeOffset>> _findSeriesIntersactions(
   List<RelativeOffset> from,
   List<RelativeOffset> to, {
   bool reverse = false,
 }) {
-  List<Animatable<RelativeOffset>> values = [];
+  List<Pair<RelativeOffset>> values = [];
   for (var i = 1; i < from.length; i++) {
     var fromLine = Pair(from[i - 1], from[i]);
     for (final toOffset in to) {
@@ -28,7 +27,7 @@ List<Animatable<RelativeOffset>> _findIntersactionsAndBuild(
       final cross = intersection(targetLine, xLine);
       if (reverse) {
         values.add(
-          builder(
+          Pair(
             toOffset,
             RelativeOffset(
                 cross.x.toDouble(), cross.y.toDouble(), toOffset.viewportSize),
@@ -36,7 +35,7 @@ List<Animatable<RelativeOffset>> _findIntersactionsAndBuild(
         );
       } else {
         values.add(
-          builder(
+          Pair(
             RelativeOffset(
                 cross.x.toDouble(), cross.y.toDouble(), toOffset.viewportSize),
             toOffset,
@@ -72,13 +71,15 @@ class AnimatedSeries {
         from.entities.map((e) => e.toRelativeOffset(bounds)).toList();
     final toOffsets =
         to?.entities?.map((e) => e.toRelativeOffset(bounds))?.toList() ?? [];
-
-    List<Animatable<RelativeOffset>> values = [
-      ..._findIntersactionsAndBuild(builder, fromOffsets, toOffsets),
-      ..._findIntersactionsAndBuild(builder, toOffsets, fromOffsets,
-          reverse: true)
-    ];
-
+    final directIntersactions = _findSeriesIntersactions(fromOffsets, toOffsets);
+    final reverseIntersactions = _findSeriesIntersactions(toOffsets, fromOffsets, reverse: true);
+    final offsets = {
+      ...directIntersactions, 
+      ...reverseIntersactions
+    }.toList();
+    offsets.sort((a, b) => a.a.dx.compareTo(b.a.dx));
+    var values = offsets.map((e) => builder(e.a, e.b)).toList();
+    
     return AnimatedSeries(from: from, to: to, offsetAnimatables: values);
   }
 

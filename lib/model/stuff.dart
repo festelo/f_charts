@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:f_charts/chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:quiver_hashcode/hashcode.dart';
 
 class RelativeOffset {
   Size viewportSize;
@@ -98,6 +99,16 @@ class RelativeOffset {
       return Offset(pointX, pointY);
     }
   }
+  
+  @override
+  bool operator ==(Object other) => other is RelativeOffset && 
+    dx == other.dx &&
+    dy == other.dy &&
+    viewportSize == other.viewportSize &&
+    padding == other.padding;
+
+  @override
+  int get hashCode => hash4(dx, dy, viewportSize, padding);
 
   RelativeOffset copy() =>
       RelativeOffset(dx, dy, viewportSize, padding: padding);
@@ -110,6 +121,14 @@ class Pair<T> {
   final T a;
   final T b;
   Pair(this.a, this.b);
+  
+  @override
+  bool operator ==(Object other) => other is Pair<T> && 
+    a == other.a &&
+    b == other.b;
+
+  @override
+  int get hashCode => hash2(a, b);
 
   @override
   String toString() => 'Pair($a, $b)';
