@@ -23,23 +23,23 @@ List<Pair<RelativeOffset>> _findSeriesIntersactions(
         Point(xPosition, 0),
         Point(xPosition, toOffset.viewportSize.height),
       );
-      final targetLine =
-          Pair(Point(fromLine.a.dx, fromLine.a.dy), Point(fromLine.b.dx, fromLine.b.dy));
+      final targetLine = Pair(Point(fromLine.a.dx, fromLine.a.dy),
+          Point(fromLine.b.dx, fromLine.b.dy));
       final cross = intersection(targetLine, xLine);
       if (cross == null) continue;
       if (reverse) {
         values.add(
           Pair(
             toOffset,
-            RelativeOffset(
-                cross.x.toDouble(), cross.y.toDouble(), toOffset.viewportSize),
+            RelativeOffset(cross.x.toDouble(), cross.y.toDouble(),
+                viewportSize: toOffset.viewportSize),
           ),
         );
       } else {
         values.add(
           Pair(
-            RelativeOffset(
-                cross.x.toDouble(), cross.y.toDouble(), toOffset.viewportSize),
+            RelativeOffset(cross.x.toDouble(), cross.y.toDouble(),
+                viewportSize: toOffset.viewportSize),
             toOffset,
           ),
         );
@@ -72,18 +72,20 @@ class AnimatedSeries {
   }) {
     final fromOffsets =
         seriesFrom.entities.map((e) => e.toRelativeOffset(boundsFrom)).toList();
-    final toOffsets =
-        seroesTo?.entities?.map((e) => e.toRelativeOffset(boundsTo))?.toList() ?? [];
-    final directIntersactions = _findSeriesIntersactions(fromOffsets, toOffsets);
-    final reverseIntersactions = _findSeriesIntersactions(toOffsets, fromOffsets, reverse: true);
-    final offsets = {
-      ...directIntersactions, 
-      ...reverseIntersactions
-    }.toList();
+    final toOffsets = seroesTo?.entities
+            ?.map((e) => e.toRelativeOffset(boundsTo))
+            ?.toList() ??
+        [];
+    final directIntersactions =
+        _findSeriesIntersactions(fromOffsets, toOffsets);
+    final reverseIntersactions =
+        _findSeriesIntersactions(toOffsets, fromOffsets, reverse: true);
+    final offsets = {...directIntersactions, ...reverseIntersactions}.toList();
     offsets.sort((a, b) => a.a.dx.compareTo(b.a.dx));
     var values = offsets.map((e) => builder(e.a, e.b)).toList();
-    
-    return AnimatedSeries(from: seriesFrom, to: seroesTo, offsetAnimatables: values);
+
+    return AnimatedSeries(
+        from: seriesFrom, to: seroesTo, offsetAnimatables: values);
   }
 
   factory AnimatedSeries.tween({
@@ -93,30 +95,27 @@ class AnimatedSeries {
     @required ChartSeries seriesTo,
   }) {
     return AnimatedSeries.custom(
-      builder: (a, b) => Tween(begin: a, end: b),
-      boundsFrom: boundsFrom,
-      boundsTo: boundsTo,
-      seriesFrom: seriesFrom,
-      seroesTo: seriesTo
-    );
+        builder: (a, b) => Tween(begin: a, end: b),
+        boundsFrom: boundsFrom,
+        boundsTo: boundsTo,
+        seriesFrom: seriesFrom,
+        seroesTo: seriesTo);
   }
 
-  factory AnimatedSeries.curve({
-    @required ChartBounds boundsFrom,
-    @required ChartBounds boundsTo,
-    @required ChartSeries seriesFrom,
-    @required ChartSeries seriesTo,
-    Curve curve = Curves.easeInOut
-  }) {
+  factory AnimatedSeries.curve(
+      {@required ChartBounds boundsFrom,
+      @required ChartBounds boundsTo,
+      @required ChartSeries seriesFrom,
+      @required ChartSeries seriesTo,
+      Curve curve = Curves.easeInOut}) {
     return AnimatedSeries.custom(
-      builder: (a, b) => Tween(begin: a, end: b).chain(
-        CurveTween(curve: curve),
-      ),
-      boundsFrom: boundsFrom,
-      boundsTo: boundsTo,
-      seriesFrom: seriesFrom,
-      seroesTo: seriesTo
-    );
+        builder: (a, b) => Tween(begin: a, end: b).chain(
+              CurveTween(curve: curve),
+            ),
+        boundsFrom: boundsFrom,
+        boundsTo: boundsTo,
+        seriesFrom: seriesFrom,
+        seroesTo: seriesTo);
   }
 
   List<RelativeOffset> points(Animation<double> animation) {

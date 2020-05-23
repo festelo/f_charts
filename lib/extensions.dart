@@ -38,7 +38,7 @@ extension ChartSeriesExtensions<T1, T2> on ChartEntity<Measure<T1>, Measure<T2>>
     return RelativeOffset(
       this.abscissa.stepValue(bounds.minAbscissa.value),
       this.ordinate.stepValue(bounds.minOrdinate.value), 
-      Size(bounds.maxAbscissaStep, bounds.maxOrdinateStep)
+      viewportSize: Size(bounds.maxAbscissaStep, bounds.maxOrdinateStep)
     ).reverseY();
   }
 }

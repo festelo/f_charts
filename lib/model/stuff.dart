@@ -10,20 +10,17 @@ class RelativeOffset {
   Size viewportSize;
   double dx;
   double dy;
-  EdgeInsets padding;
 
-  RelativeOffset(this.dx, this.dy, this.viewportSize, {this.padding});
+  RelativeOffset(this.dx, this.dy, {this.viewportSize = const Size(1, 1)});
 
-  RelativeOffset.fromOffset(Offset relativeOffset, this.viewportSize,
-      {this.padding})
+  RelativeOffset.fromOffset(Offset relativeOffset,
+      {this.viewportSize})
       : dx = relativeOffset.dx,
         dy = relativeOffset.dy;
 
   RelativeOffset reverseY() => copy()..dy = viewportSize.height - dy;
 
   RelativeOffset reverseX() => copy()..dx = viewportSize.width - dx;
-
-  RelativeOffset withPadding(EdgeInsets insets) => copy()..padding = insets;
 
   RelativeOffset operator +(Object other) { 
     if (other is RelativeOffset) {
@@ -86,17 +83,8 @@ class RelativeOffset {
   }
 
   Offset toOffset(Size size) {
-    if (padding == null) {
-      var pointX = (dx / viewportSize.width) * size.width;
-      var pointY = (dy / viewportSize.height) * size.height;
-      return Offset(pointX, pointY);
-    } else {
-      var newSizeWidth = size.width / (size.width + padding.left + padding.right) * size.width;
-      var newSizeHeight = size.height / (size.height + padding.top + padding.bottom) * size.height;
-      var pointX = padding.left + (dx / viewportSize.width) * newSizeWidth;
-      var pointY = padding.top + (dy / viewportSize.height) * newSizeHeight;
-      return Offset(pointX, pointY);
-    }
+    final scaled = copy()..scaleTo(size);
+    return Offset(scaled.dx, scaled.dy);
   }
 
   void scaleTo(Size viewportSize) {
@@ -109,14 +97,13 @@ class RelativeOffset {
   bool operator ==(Object other) => other is RelativeOffset && 
     dx == other.dx &&
     dy == other.dy &&
-    viewportSize == other.viewportSize &&
-    padding == other.padding;
+    viewportSize == other.viewportSize;
 
   @override
-  int get hashCode => hash4(dx, dy, viewportSize, padding);
+  int get hashCode => hash3(dx, dy, viewportSize);
 
   RelativeOffset copy() =>
-      RelativeOffset(dx, dy, viewportSize, padding: padding);
+      RelativeOffset(dx, dy, viewportSize: viewportSize);
 
   @override
   String toString() => '($dx; $dy) at (${viewportSize.height}; ${viewportSize.width})';

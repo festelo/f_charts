@@ -32,8 +32,8 @@ class ChartDecorationLayer extends Layer {
       _xAxisLine = null;
     } else {
       _xAxisLine = RelativeLine(
-        RelativeOffset(0, 1, Size(1, 1)),
-        RelativeOffset(1, 1, Size(1, 1)),
+        RelativeOffset(0, 1),
+        RelativeOffset(1, 1),
         color: theme.xAxis.color,
         width: theme.xAxis.width,
       );
@@ -45,8 +45,8 @@ class ChartDecorationLayer extends Layer {
       _yAxisLine = null;
     } else {
       _yAxisLine = RelativeLine(
-        RelativeOffset(0, 0, Size(1, 1)),
-        RelativeOffset(0, 1, Size(1, 1)),
+        RelativeOffset(0, 0),
+        RelativeOffset(0, 1),
         color: theme.yAxis.color,
         width: theme.yAxis.width,
       );
@@ -60,8 +60,8 @@ class ChartDecorationLayer extends Layer {
       var viewportSize = Size(1, theme.yMarkersCount.toDouble());
       for (var i = 0.0; i < theme.yMarkersCount; i++) {
         yAxisMarkers.add(RelativeLine(
-          RelativeOffset(0, i, viewportSize),
-          RelativeOffset(1, i, viewportSize),
+          RelativeOffset(0, i, viewportSize: viewportSize),
+          RelativeOffset(1, i, viewportSize: viewportSize),
           color: theme.yMarker.color,
           width: theme.yMarker.width,
         ));
