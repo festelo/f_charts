@@ -1,6 +1,7 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart_animation/move_animation.dart';
+import 'package:f_charts/chart_animation/animated_series.dart';
+import 'package:f_charts/chart_animation/viewport_animation.dart';
 import 'package:f_charts/chart_model/layer.dart';
 import 'package:f_charts/extensions.dart';
 import 'package:f_charts/model/base.dart';
@@ -17,6 +18,11 @@ typedef AnimatedSeriesBuilder = AnimatedSeries Function(
   ChartSeries seriesTo,
 );
 
+typedef AnimatedViewportBuilder = Animatable<Size> Function(
+  ChartBounds boundsFrom,
+  ChartBounds boundsTo,
+);
+
 class MoveAnimation {
   final List<AnimatedSeries> series;
   final Animatable<Size> viewportAnimatable;
@@ -30,12 +36,21 @@ class MoveAnimation {
     @required this.viewportAnimatable,
   });
 
-  factory MoveAnimation.between({
+  factory MoveAnimation.between(
     ChartData from,
-    ChartData to,
-    AnimatedSeriesBuilder builder,
-    Animatable<Size> viewportAnimatable,
+    ChartData to, {
+    AnimatedSeriesBuilder animatedSeriesBuilder,
+    AnimatedViewportBuilder animatedViewportBuilder,
   }) {
+    animatedViewportBuilder ??= AnimatedViewport.tween;
+    animatedSeriesBuilder ??=
+        (boundsFrom, boundsTo, seriesFrom, seriesTo) => AnimatedSeries.curve(
+              boundsFrom: boundsFrom,
+              boundsTo: boundsTo,
+              seriesFrom: seriesFrom,
+              seriesTo: seriesTo,
+            );
+
     final boundsFrom = from.getBounds();
     final boundsTo = to.getBounds();
     final mappedFrom =
@@ -43,12 +58,10 @@ class MoveAnimation {
     final mappedTo = Map.fromEntries(to.series.map((c) => MapEntry(c.name, c)));
     final series = <AnimatedSeries>[];
     for (final key in mappedFrom.keys) {
-      series.add(builder(boundsFrom, boundsTo, mappedFrom[key], mappedTo[key]));
+      series.add(animatedSeriesBuilder(
+          boundsFrom, boundsTo, mappedFrom[key], mappedTo[key]));
     }
-    viewportAnimatable ??= Tween(
-      begin: Size(boundsFrom.maxAbscissaStep, boundsFrom.maxOrdinateStep),
-      end: Size(boundsTo.maxAbscissaStep, boundsTo.maxOrdinateStep),
-    );
+    final viewportAnimatable = animatedViewportBuilder(boundsFrom, boundsTo);
     return MoveAnimation(
       series,
       boundsFrom: boundsFrom,

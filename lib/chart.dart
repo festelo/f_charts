@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:f_charts/chart_model/base_layer.dart';
 import 'package:f_charts/chart_model/decoration_layer.dart';
@@ -8,11 +7,9 @@ import 'package:f_charts/chart_model/move_layer.dart';
 import 'package:f_charts/chart_model/points_name_layer.dart';
 import 'package:f_charts/chart_model/theme.dart';
 import 'package:f_charts/model/base.dart';
-import 'package:f_charts/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import 'chart_animation/move_animation.dart';
 import 'chart_model/layer.dart';
 import 'model/impl.dart';
 import 'model/stuff.dart';
@@ -99,17 +96,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   }
 
   Future<void> startAnimation(ChartData from, ChartData to) async {
-    moveAnimation = MoveAnimation.between(
-      from: from,
-      to: to,
-      builder: (boundsFrom, boundsTo, from, to) =>
-          AnimatedSeries.curve(
-            boundsFrom: boundsFrom, 
-            boundsTo: boundsTo, 
-            seriesFrom: from,
-            seriesTo: to,
-          ),
-    );
+    moveAnimation = MoveAnimation.between(from, to);
     moveLayer = ChartMoveLayer(
       animation: moveAnimation,
       parent: moveAnimationController,
