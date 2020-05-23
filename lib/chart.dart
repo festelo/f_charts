@@ -67,7 +67,6 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   ChartDrawBaseLayer baseLayer;
   ChartInteractionLayer interactionLayer;
   ChartDecorationLayer decorationLayer;
-  PointsNameLayer pointsNameLayer;
 
   @override
   void initState() {
@@ -75,7 +74,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     initLayers();
     moveAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 3)
+      duration: Duration(milliseconds: 500)
     );
     moveAnimationController.addListener(() { setState(() {}); });
   }
@@ -113,7 +112,6 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
       pointPressed: widget.pointPressed,
     );
     decorationLayer = ChartDecorationLayer.calculate(widget.chartData, widget.theme);
-    pointsNameLayer = PointsNameLayer.calculate(widget.chartData, widget.theme);
   }
 
   @override
@@ -130,7 +128,6 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
               if (!moveAnimationController.isAnimating)
                 baseLayer,
               interactionLayer,
-              pointsNameLayer,
               if (moveAnimationController.isAnimating) 
                 moveLayer
             ],

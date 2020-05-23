@@ -49,6 +49,7 @@ class MoveAnimation {
               boundsTo: boundsTo,
               seriesFrom: seriesFrom,
               seriesTo: seriesTo,
+              curve: Curves.easeInOut
             );
 
     final boundsFrom = from.getBounds();
@@ -92,33 +93,12 @@ class ChartMoveLayer extends Layer {
         points[i].viewportSize = animation.viewportAnimatable.evaluate(parent);
       }
       if (points.isEmpty) continue;
-      final textStyle = TextStyle(
-        color: Colors.black,
-        fontSize: 16,
-      );
-      final textSpan = TextSpan(
-        text: points[0].viewportSize.toString(),
-        style: textStyle,
-      );
-      final textPainter = TextPainter(
-        text: textSpan,
-        textDirection: TextDirection.ltr,
-      );
-      textPainter.layout(
-        minWidth: 0,
-        maxWidth: size.width,
-      );
-      final offset = Offset(50, 100);
-      textPainter.paint(canvas, offset);
       Offset b;
       for (var i = 1; i < points.length; i++) {
         var a = points[i - 1].toOffset(size);
         b = points[i].toOffset(size);
-        drawPoint(canvas, a, s.from.color);
-        drawPoint(canvas, b, s.from.color);
         drawLine(canvas, a, b, s.from.color);
       }
-      drawPoint(canvas, b ?? points[0].toOffset(size), s.from.color);
     }
   }
 
