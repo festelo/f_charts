@@ -101,6 +101,9 @@ class RelativeOffset {
 
   RelativeOffset copy() =>
       RelativeOffset(dx, dy, viewportSize, padding: padding);
+
+  @override
+  String toString() => '($dx; $dy) at (${viewportSize.height}; ${viewportSize.width})';
 }
 
 class Pair<T> {
