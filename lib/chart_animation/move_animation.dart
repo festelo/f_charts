@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:f_charts/extensions.dart';
 import 'package:f_charts/model/base.dart';
@@ -25,6 +26,7 @@ List<Pair<RelativeOffset>> _findSeriesIntersactions(
       final targetLine =
           Pair(Point(fromLine.a.dx, fromLine.a.dy), Point(fromLine.b.dx, fromLine.b.dy));
       final cross = intersection(targetLine, xLine);
+      if (cross == null) continue;
       if (reverse) {
         values.add(
           Pair(
@@ -63,14 +65,15 @@ class AnimatedSeries {
 
   factory AnimatedSeries.custom({
     @required AnimatableBuilder builder,
-    @required ChartBounds bounds,
-    @required ChartSeries from,
-    @required ChartSeries to,
+    @required ChartBounds boundsFrom,
+    @required ChartBounds boundsTo,
+    @required ChartSeries seriesFrom,
+    @required ChartSeries seroesTo,
   }) {
     final fromOffsets =
-        from.entities.map((e) => e.toRelativeOffset(bounds)).toList();
+        seriesFrom.entities.map((e) => e.toRelativeOffset(boundsFrom)).toList();
     final toOffsets =
-        to?.entities?.map((e) => e.toRelativeOffset(bounds))?.toList() ?? [];
+        seroesTo?.entities?.map((e) => e.toRelativeOffset(boundsTo))?.toList() ?? [];
     final directIntersactions = _findSeriesIntersactions(fromOffsets, toOffsets);
     final reverseIntersactions = _findSeriesIntersactions(toOffsets, fromOffsets, reverse: true);
     final offsets = {
@@ -80,35 +83,39 @@ class AnimatedSeries {
     offsets.sort((a, b) => a.a.dx.compareTo(b.a.dx));
     var values = offsets.map((e) => builder(e.a, e.b)).toList();
     
-    return AnimatedSeries(from: from, to: to, offsetAnimatables: values);
+    return AnimatedSeries(from: seriesFrom, to: seroesTo, offsetAnimatables: values);
   }
 
   factory AnimatedSeries.tween({
-    @required ChartBounds bounds,
-    @required ChartSeries from,
-    @required ChartSeries to,
+    @required ChartBounds boundsFrom,
+    @required ChartBounds boundsTo,
+    @required ChartSeries seriesFrom,
+    @required ChartSeries seriesTo,
   }) {
     return AnimatedSeries.custom(
       builder: (a, b) => Tween(begin: a, end: b),
-      bounds: bounds,
-      from: from,
-      to: to,
+      boundsFrom: boundsFrom,
+      boundsTo: boundsTo,
+      seriesFrom: seriesFrom,
+      seroesTo: seriesTo
     );
   }
 
   factory AnimatedSeries.curve({
-    @required ChartBounds bounds,
-    @required ChartSeries from,
-    @required ChartSeries to,
+    @required ChartBounds boundsFrom,
+    @required ChartBounds boundsTo,
+    @required ChartSeries seriesFrom,
+    @required ChartSeries seriesTo,
     Curve curve = Curves.easeInCubic
   }) {
     return AnimatedSeries.custom(
       builder: (a, b) => Tween(begin: a, end: b).chain(
         CurveTween(curve: curve),
       ),
-      bounds: bounds,
-      from: from,
-      to: to,
+      boundsFrom: boundsFrom,
+      boundsTo: boundsTo,
+      seriesFrom: seriesFrom,
+      seroesTo: seriesTo
     );
   }
 

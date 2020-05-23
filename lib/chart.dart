@@ -102,8 +102,13 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     moveAnimation = MoveAnimation.between(
       from: from,
       to: to,
-      builder: (bounds, from, to) =>
-          AnimatedSeries.curve(bounds: bounds, from: from, to: to),
+      builder: (boundsFrom, boundsTo, from, to) =>
+          AnimatedSeries.curve(
+            boundsFrom: boundsFrom, 
+            boundsTo: boundsTo, 
+            seriesFrom: from,
+            seriesTo: to,
+          ),
     );
     moveLayer = ChartMoveLayer(
       animation: moveAnimation,

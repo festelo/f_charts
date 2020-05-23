@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  var data = [
+  List<ChartData> get data => [
     ChartData([
       ChartSeries(color: Colors.red, name: '1', entities: [
         IntChartEntity(0, 1),

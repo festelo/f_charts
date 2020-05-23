@@ -2,7 +2,6 @@
 
 import 'dart:ui';
 
-import 'package:f_charts/chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:quiver_hashcode/hashcode.dart';
@@ -28,10 +27,10 @@ class RelativeOffset {
 
   RelativeOffset operator +(Object other) { 
     if (other is RelativeOffset) {
-      assert(other.viewportSize == this.viewportSize);
+      final ro = other.copy()..scaleTo(viewportSize);
       return copy()
-        ..dx = dx + other.dx
-        ..dy = dy + other.dy;
+        ..dx = dx + ro.dx
+        ..dy = dy + ro.dy;
     } else if (other is num) {
       return copy()
         ..dx = dx + other
@@ -43,10 +42,10 @@ class RelativeOffset {
 
   RelativeOffset operator -(Object other) { 
     if (other is RelativeOffset) {
-      assert(other.viewportSize == this.viewportSize);
+      final ro = other.copy()..scaleTo(viewportSize);
       return copy()
-        ..dx = dx - other.dx
-        ..dy = dy - other.dy;
+        ..dx = dx - ro.dx
+        ..dy = dy - ro.dy;
     } else if (other is num) {
       return copy()
         ..dx = dx - other
@@ -58,10 +57,10 @@ class RelativeOffset {
 
   RelativeOffset operator *(Object other) {
     if (other is RelativeOffset) {
-      assert(other.viewportSize == this.viewportSize);
+      final ro = other.copy()..scaleTo(viewportSize);
       return copy()
-        ..dx = dx * other.dx
-        ..dy = dy * other.dy;
+        ..dx = dx * ro.dx
+        ..dy = dy * ro.dy;
     } else if (other is num) {
       return copy()
         ..dx = dx * other
@@ -73,10 +72,10 @@ class RelativeOffset {
 
   RelativeOffset operator /(Object other) { 
     if (other is RelativeOffset) {
-      assert(other.viewportSize == this.viewportSize);
+      final ro = other.copy()..scaleTo(viewportSize);
       return copy()
-        ..dx = dx / other.dx
-        ..dy = dy / other.dy;
+        ..dx = dx / ro.dx
+        ..dy = dy / ro.dy;
     } else if (other is num) {
       return copy()
         ..dx = dx / other
@@ -98,6 +97,12 @@ class RelativeOffset {
       var pointY = padding.top + (dy / viewportSize.height) * newSizeHeight;
       return Offset(pointX, pointY);
     }
+  }
+
+  void scaleTo(Size viewportSize) {
+    dx = (dx / viewportSize.width) * viewportSize.width;
+    dy = (dy / viewportSize.height) * viewportSize.height;
+    viewportSize = viewportSize;
   }
   
   @override
