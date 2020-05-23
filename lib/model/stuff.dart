@@ -129,3 +129,9 @@ class RelativePoint {
   final Color color;
   RelativePoint(this.offset, {this.radius = 5, this.color = Colors.black});
 }
+
+class RelativeText {
+  final RelativeOffset offset;
+  final TextPainter painter;
+  RelativeText(this.offset, this.painter);
+}

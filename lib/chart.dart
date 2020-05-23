@@ -5,6 +5,7 @@ import 'package:f_charts/chart_model/base_layer.dart';
 import 'package:f_charts/chart_model/decoration_layer.dart';
 import 'package:f_charts/chart_model/interaction_layer.dart';
 import 'package:f_charts/chart_model/move_layer.dart';
+import 'package:f_charts/chart_model/points_name_layer.dart';
 import 'package:f_charts/chart_model/theme.dart';
 import 'package:f_charts/model/base.dart';
 import 'package:f_charts/utils.dart';
@@ -69,6 +70,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   ChartDrawBaseLayer baseLayer;
   ChartInteractionLayer interactionLayer;
   ChartDecorationLayer decorationLayer;
+  PointsNameLayer pointsNameLayer;
 
   @override
   void initState() {
@@ -119,6 +121,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
       pointPressed: widget.pointPressed,
     );
     decorationLayer = ChartDecorationLayer.calculate(widget.chartData, widget.theme);
+    pointsNameLayer = PointsNameLayer.calculate(widget.chartData, widget.theme);
   }
 
   @override
@@ -135,6 +138,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
               if (!moveAnimationController.isAnimating)
                 baseLayer,
               interactionLayer,
+              pointsNameLayer,
               if (moveAnimationController.isAnimating) 
                 moveLayer
             ],
