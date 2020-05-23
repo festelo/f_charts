@@ -106,7 +106,7 @@ class AnimatedSeries {
     @required ChartBounds boundsTo,
     @required ChartSeries seriesFrom,
     @required ChartSeries seriesTo,
-    Curve curve = Curves.easeInCubic
+    Curve curve = Curves.easeInOut
   }) {
     return AnimatedSeries.custom(
       builder: (a, b) => Tween(begin: a, end: b).chain(

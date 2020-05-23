@@ -9,4 +9,10 @@ class AnimatedViewport {
     begin: Size(boundsFrom.maxAbscissaStep, boundsFrom.maxOrdinateStep),
     end: Size(boundsTo.maxAbscissaStep, boundsTo.maxOrdinateStep),
   );
+  static Animatable<Size> curve(ChartBounds boundsFrom, ChartBounds boundsTo, [Curve curve = Curves.easeInOut]) => Tween(
+    begin: Size(boundsFrom.maxAbscissaStep, boundsFrom.maxOrdinateStep),
+    end: Size(boundsTo.maxAbscissaStep, boundsTo.maxOrdinateStep),
+  ).chain(
+    CurveTween(curve: curve),
+  );
 }

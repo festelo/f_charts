@@ -42,14 +42,13 @@ class MoveAnimation {
     AnimatedSeriesBuilder animatedSeriesBuilder,
     AnimatedViewportBuilder animatedViewportBuilder,
   }) {
-    animatedViewportBuilder ??= AnimatedViewport.tween;
+    animatedViewportBuilder ??= AnimatedViewport.curve;
     animatedSeriesBuilder ??=
         (boundsFrom, boundsTo, seriesFrom, seriesTo) => AnimatedSeries.curve(
               boundsFrom: boundsFrom,
               boundsTo: boundsTo,
               seriesFrom: seriesFrom,
               seriesTo: seriesTo,
-              curve: Curves.easeInOut
             );
 
     final boundsFrom = from.getBounds();
