@@ -6,6 +6,10 @@ import 'package:f_charts/model/base.dart';
 
 import 'model/stuff.dart';
 
+extension MapExtensions<T1, T2> on Map<T1, T2> {
+  Map<T2, T1> reverse() => this.map((key, value) => MapEntry(value, key));
+}
+
 extension OffsetExtenstions on Offset {
   Point toPoint() {
     return Point(this.dx, this.dy);
@@ -40,10 +44,10 @@ extension ChartBoundsExtensions<T1, T2> on ChartBounds<T1, T2> {
 
 extension ChartSeriesExtensions<T1, T2> on ChartEntity<Measure<T1>, Measure<T2>> {
   RelativeOffset toRelativeOffset(ChartBounds<T1, T2> bounds) {
-    return RelativeOffset(
+    return RelativeOffset.withViewport(
       this.abscissa.stepValue(bounds.minAbscissa.value),
       this.ordinate.stepValue(bounds.minOrdinate.value), 
-      viewportSize: bounds.toSize()
+      bounds.toSize()
     ).reverseY();
   }
 }

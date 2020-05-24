@@ -1,9 +1,7 @@
 import 'dart:ui';
 
 import 'package:f_charts/chart_animation/animated_series.dart';
-import 'package:f_charts/chart_animation/viewport_animation.dart';
 import 'package:f_charts/chart_model/layer.dart';
-import 'package:f_charts/extensions.dart';
 import 'package:f_charts/model/base.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,14 +16,8 @@ typedef AnimatedSeriesBuilder = AnimatedSeries Function(
   ChartSeries seriesTo,
 );
 
-typedef AnimatedViewportBuilder = Animatable<Size> Function(
-  ChartBounds boundsFrom,
-  ChartBounds boundsTo,
-);
-
 class MoveAnimation {
   final List<AnimatedSeries> series;
-  final Animatable<Size> viewportAnimatable;
   final ChartBounds boundsFrom;
   final ChartBounds boundsTo;
 
@@ -33,16 +25,13 @@ class MoveAnimation {
     this.series, {
     @required this.boundsFrom,
     @required this.boundsTo,
-    @required this.viewportAnimatable,
   });
 
   factory MoveAnimation.between(
     ChartData from,
     ChartData to, {
     AnimatedSeriesBuilder animatedSeriesBuilder,
-    AnimatedViewportBuilder animatedViewportBuilder,
   }) {
-    animatedViewportBuilder ??= AnimatedViewport.curve;
     animatedSeriesBuilder ??=
         (boundsFrom, boundsTo, seriesFrom, seriesTo) => AnimatedSeries.curve(
               boundsFrom: boundsFrom,
@@ -60,13 +49,11 @@ class MoveAnimation {
     for (final key in mappedFrom.keys) {
       series.add(animatedSeriesBuilder(
           boundsFrom, boundsTo, mappedFrom[key], mappedTo[key]));
-    }
-    final viewportAnimatable = animatedViewportBuilder(boundsFrom, boundsTo);
+    };
     return MoveAnimation(
       series,
       boundsFrom: boundsFrom,
       boundsTo: boundsTo,
-      viewportAnimatable: viewportAnimatable,
     );
   }
 }
@@ -88,9 +75,6 @@ class ChartMoveLayer extends Layer {
   void draw(Canvas canvas, Size size) {
     for (final s in animation.series) {
       final points = s.points(parent);
-      for (var i = 0; i < points.length; i++) {
-        points[i].viewportSize = animation.viewportAnimatable.evaluate(parent);
-      }
       if (points.isEmpty) continue;
       Offset b;
       for (var i = 1; i < points.length; i++) {

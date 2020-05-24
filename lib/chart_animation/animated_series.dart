@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:f_charts/extensions.dart';
 import 'package:f_charts/model/base.dart';
@@ -8,45 +7,38 @@ import 'package:f_charts/utils.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 
-List<Pair<RelativeOffset>> _findSeriesIntersactions(
+Map<RelativeOffset, RelativeOffset> _findPointsIntersactionWay(
   List<RelativeOffset> from,
-  List<RelativeOffset> to, {
-  bool reverse = false,
-}) {
-  List<Pair<RelativeOffset>> values = [];
-  for (var i = 1; i < from.length; i++) {
-    var fromLine = Pair(from[i - 1], from[i]);
-    for (final toOffset in to) {
-      final xPosition = toOffset.dx;
-      if (!(fromLine.a.dx <= xPosition && fromLine.b.dx >= xPosition)) continue;
+  List<RelativeOffset> to,
+) {
+  if (from.isEmpty || to.isEmpty) return {};
+  Map<RelativeOffset, RelativeOffset> pointsMap = {};
+
+  for (var pointFromI = 0; pointFromI < from.length; pointFromI++) {
+    final xPosition = from[pointFromI].dx;
+
+    for (var pointToI = 1; pointToI < to.length; pointToI++) {
+      var toLine = Pair(to[pointToI - 1], to[pointToI]);
+      if (!(toLine.a.dx <= xPosition && toLine.b.dx >= xPosition)) continue;
+
       final xLine = Pair(
-        Point(xPosition, 0),
-        Point(xPosition, toOffset.viewportSize.height),
+        Point(xPosition, RelativeOffset.min),
+        Point(xPosition, RelativeOffset.max),
       );
-      final targetLine = Pair(Point(fromLine.a.dx, fromLine.a.dy),
-          Point(fromLine.b.dx, fromLine.b.dy));
+
+      final targetLine = Pair(
+        Point(toLine.a.dx, toLine.a.dy),
+        Point(toLine.b.dx, toLine.b.dy),
+      );
+
       final cross = intersection(targetLine, xLine);
-      if (cross == null) continue;
-      if (reverse) {
-        values.add(
-          Pair(
-            toOffset,
-            RelativeOffset(cross.x.toDouble(), cross.y.toDouble(),
-                viewportSize: toOffset.viewportSize),
-          ),
-        );
-      } else {
-        values.add(
-          Pair(
-            RelativeOffset(cross.x.toDouble(), cross.y.toDouble(),
-                viewportSize: toOffset.viewportSize),
-            toOffset,
-          ),
-        );
-      }
+      if (cross != null)
+        pointsMap[from[pointFromI]] =
+            RelativeOffset(cross.x.toDouble(), cross.y.toDouble());
     }
   }
-  return values;
+
+  return pointsMap;
 }
 
 typedef AnimatableBuilder = Animatable<RelativeOffset> Function(
@@ -76,15 +68,40 @@ class AnimatedSeries {
             ?.map((e) => e.toRelativeOffset(boundsTo))
             ?.toList() ??
         [];
-    final sizeFrom = boundsFrom.toSize();
-    for(final toOffset in toOffsets) { toOffset.viewportSize = sizeFrom; }
     final directIntersactions =
-        _findSeriesIntersactions(fromOffsets, toOffsets);
+        _findPointsIntersactionWay(fromOffsets, toOffsets);
     final reverseIntersactions =
-        _findSeriesIntersactions(toOffsets, fromOffsets, reverse: true);
-    final offsets = {...directIntersactions, ...reverseIntersactions}.toList();
-    offsets.sort((a, b) => a.a.dx.compareTo(b.a.dx));
-    var values = offsets.map((e) => builder(e.a, e.b)).toList();
+        _findPointsIntersactionWay(toOffsets, fromOffsets).reverse();
+
+    final allIntersactions = {...directIntersactions, ...reverseIntersactions};
+
+    final allIntersactionsReversed = allIntersactions.reverse();
+
+    for (var key in fromOffsets) {
+      if (allIntersactions[key] != null) continue;
+      allIntersactions[key] = allIntersactions.values.reduce(
+        (a, b) => (key.dx - a.dx).abs() < (key.dx - b.dx).abs() ? a : b,
+      );
+    }
+
+    final pairs =
+        allIntersactions.entries.map((e) => Pair(e.key, e.value)).toList();
+
+    for (var key in toOffsets) {
+      if (allIntersactionsReversed[key] != null) continue;
+      var nKey = allIntersactions.keys.reduce(
+        (a, b) => (key.dx - a.dx).abs() < (key.dx - b.dx).abs() ? a : b,
+      );
+      pairs.add(Pair(nKey, key));
+    }
+
+    pairs.sort((a, b) {
+      var compared = a.a.dx.compareTo(b.a.dx);
+      if (compared == 0) return a.b.dx.compareTo(b.b.dx);
+      return compared;
+    });
+
+    var values = pairs.map((e) => builder(e.a, e.b)).toList();
 
     return AnimatedSeries(
         from: seriesFrom, to: seroesTo, offsetAnimatables: values);
@@ -111,13 +128,41 @@ class AnimatedSeries {
       @required ChartSeries seriesTo,
       Curve curve = Curves.easeInOut}) {
     return AnimatedSeries.custom(
-        builder: (a, b) => Tween(begin: a, end: b).chain(
+      builder: (a, b) => Tween(begin: a, end: b).chain(
+        CurveTween(curve: curve),
+      ),
+      boundsFrom: boundsFrom,
+      boundsTo: boundsTo,
+      seriesFrom: seriesFrom,
+      seroesTo: seriesTo,
+    );
+  }
+
+  factory AnimatedSeries.leftCornerInOut({
+    @required ChartBounds boundsFrom,
+    @required ChartBounds boundsTo,
+    @required ChartSeries seriesFrom,
+    @required ChartSeries seriesTo,
+    Curve curve = Curves.easeInOut,
+  }) {
+    return AnimatedSeries.custom(
+      builder: (a, b) => TweenSequence([
+        TweenSequenceItem(
+            tween: Tween(begin: a, end: RelativeOffset(0, 0)).chain(
               CurveTween(curve: curve),
             ),
-        boundsFrom: boundsFrom,
-        boundsTo: boundsTo,
-        seriesFrom: seriesFrom,
-        seroesTo: seriesTo);
+            weight: 50),
+        TweenSequenceItem(
+            tween: Tween(begin: RelativeOffset(0, 0), end: b).chain(
+              CurveTween(curve: curve),
+            ),
+            weight: 50),
+      ]),
+      boundsFrom: boundsFrom,
+      boundsTo: boundsTo,
+      seriesFrom: seriesFrom,
+      seroesTo: seriesTo,
+    );
   }
 
   List<RelativeOffset> points(Animation<double> animation) {

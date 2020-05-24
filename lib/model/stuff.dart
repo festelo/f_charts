@@ -7,27 +7,31 @@ import 'package:flutter/painting.dart';
 import 'package:quiver_hashcode/hashcode.dart';
 
 class RelativeOffset {
-  Size viewportSize;
   double dx;
   double dy;
 
-  RelativeOffset(this.dx, this.dy, {this.viewportSize = const Size(1, 1)});
+  static const max = 1;
+  static const min = 0;
 
-  RelativeOffset.fromOffset(Offset relativeOffset,
-      {this.viewportSize})
-      : dx = relativeOffset.dx,
-        dy = relativeOffset.dy;
+  RelativeOffset(this.dx, this.dy);
 
-  RelativeOffset reverseY() => copy()..dy = viewportSize.height - dy;
+  RelativeOffset.fromOffset(Offset relativeOffset, Size viewportSize)
+      : dx = relativeOffset.dx / viewportSize.width,
+        dy = relativeOffset.dy / viewportSize.height;
 
-  RelativeOffset reverseX() => copy()..dx = viewportSize.width - dx;
+  factory RelativeOffset.withViewport(double dx, double dy, Size viewportSize) {
+    return RelativeOffset(dx / viewportSize.width, dy / viewportSize.height);
+  }
+
+  RelativeOffset reverseY() => copy()..dy = 1 - dy;
+
+  RelativeOffset reverseX() => copy()..dx = 1 - dx;
 
   RelativeOffset operator +(Object other) { 
     if (other is RelativeOffset) {
-      final ro = other.copy()..scaleTo(viewportSize);
       return copy()
-        ..dx = dx + ro.dx
-        ..dy = dy + ro.dy;
+        ..dx = dx + other.dx
+        ..dy = dy + other.dy;
     } else if (other is num) {
       return copy()
         ..dx = dx + other
@@ -39,10 +43,9 @@ class RelativeOffset {
 
   RelativeOffset operator -(Object other) { 
     if (other is RelativeOffset) {
-      final ro = other.copy()..scaleTo(viewportSize);
       return copy()
-        ..dx = dx - ro.dx
-        ..dy = dy - ro.dy;
+        ..dx = dx - other.dx
+        ..dy = dy - other.dy;
     } else if (other is num) {
       return copy()
         ..dx = dx - other
@@ -54,10 +57,9 @@ class RelativeOffset {
 
   RelativeOffset operator *(Object other) {
     if (other is RelativeOffset) {
-      final ro = other.copy()..scaleTo(viewportSize);
       return copy()
-        ..dx = dx * ro.dx
-        ..dy = dy * ro.dy;
+        ..dx = dx * other.dx
+        ..dy = dy * other.dy;
     } else if (other is num) {
       return copy()
         ..dx = dx * other
@@ -69,10 +71,9 @@ class RelativeOffset {
 
   RelativeOffset operator /(Object other) { 
     if (other is RelativeOffset) {
-      final ro = other.copy()..scaleTo(viewportSize);
       return copy()
-        ..dx = dx / ro.dx
-        ..dy = dy / ro.dy;
+        ..dx = dx / other.dx
+        ..dy = dy / other.dy;
     } else if (other is num) {
       return copy()
         ..dx = dx / other
@@ -82,31 +83,25 @@ class RelativeOffset {
     }
   }
   RelativeOffset copy() =>
-      RelativeOffset(dx, dy, viewportSize: viewportSize);
+      RelativeOffset(dx, dy);
 
   Offset toOffset(Size size) {
-    final scaled = copy()..scaleTo(size);
-    return Offset(scaled.dx, scaled.dy);
+    final pointX = dx * size.width;
+    final pointY = dy * size.height;
+    return Offset(pointX, pointY);
   }
 
-  void scaleTo(Size viewportSize) {
-    dx = (dx / this.viewportSize.width) * viewportSize.width;
-    dy = (dy / this.viewportSize.height) * viewportSize.height;
-    viewportSize = viewportSize;
-  }
-  
   @override
   bool operator ==(Object other) => other is RelativeOffset && 
     dx == other.dx &&
-    dy == other.dy &&
-    viewportSize == other.viewportSize;
+    dy == other.dy;
 
   @override
-  int get hashCode => hash3(dx, dy, viewportSize);
+  int get hashCode => hash2(dx, dy);
 
 
   @override
-  String toString() => '($dx; $dy) at (${viewportSize.height}; ${viewportSize.width})';
+  String toString() => '(${dx.toStringAsFixed(2)}; ${dy.toStringAsFixed(2)})';
 }
 
 class Pair<T> {

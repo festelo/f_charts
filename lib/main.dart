@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ChartSeries(color: Colors.orange, name: '2', entities: [
         IntChartEntity(1, 1),
         IntChartEntity(3, 5),
-        IntChartEntity(4, 6),
+        IntChartEntity(4, 10),
       ]),
     ]),
     ChartData([
@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
         IntChartEntity(1, 1),
         IntChartEntity(2, 3),
         IntChartEntity(3, 1),
-        IntChartEntity(4, 2),
+        IntChartEntity(10, 2),
       ]),
     ]),
   ];

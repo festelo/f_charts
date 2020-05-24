@@ -60,8 +60,8 @@ class ChartDecorationLayer extends Layer {
       var viewportSize = Size(1, theme.yMarkersCount.toDouble());
       for (var i = 0.0; i < theme.yMarkersCount; i++) {
         yAxisMarkers.add(RelativeLine(
-          RelativeOffset(0, i, viewportSize: viewportSize),
-          RelativeOffset(1, i, viewportSize: viewportSize),
+          RelativeOffset.withViewport(0, i, viewportSize),
+          RelativeOffset.withViewport(1, i, viewportSize),
           color: theme.yMarker.color,
           width: theme.yMarker.width,
         ));
