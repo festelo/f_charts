@@ -13,6 +13,11 @@ extension OffsetExtenstions on Offset {
     return Point(this.dx, this.dy);
   }
 }
+extension RelativeOffsetExtenstions on RelativeOffset {
+  Point toRelativePoint() {
+    return Point(this.dx, this.dy);
+  }
+}
 
 extension OffsetPairExtenstions on Pair<Offset> {
   Pair<Point> toPointPair() {

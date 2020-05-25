@@ -48,7 +48,7 @@ class ChartController implements Listenable {
   }
 
   void setXPosition(double value) {
-    _interactionLayer.xPosition = value;
+    _interactionLayer.xPositionAbs = value;
     notifyListeners();
   }
 
