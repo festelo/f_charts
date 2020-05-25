@@ -1,12 +1,11 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart_model/layer.dart';
+import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/data_models/_.dart';
 import 'package:f_charts/extensions.dart';
-import 'package:f_charts/model/base.dart';
-import 'package:f_charts/model/stuff.dart';
 import 'package:flutter/material.dart';
 
-import 'theme.dart';
+import 'layer.dart';
 
 class PointsNameLayer extends Layer {
   final List<RelativeText> pointTexts;
@@ -34,7 +33,6 @@ class PointsNameLayer extends Layer {
     ChartSeries series,
     ChartBounds bounds,
   ) {
-
     for (final e in series.entities) {
       final offset = e.toRelativeOffset(bounds);
       placeText(offset, offset.toString(), Colors.red);
@@ -44,10 +42,7 @@ class PointsNameLayer extends Layer {
   void placeText(RelativeOffset a, String text, Color color) {
     final textSpan = TextSpan(
       text: text,
-      style: TextStyle(
-        color: Colors.red,
-        fontSize: 13
-      ),
+      style: TextStyle(color: Colors.red, fontSize: 13),
     );
     final textPainter = TextPainter(
       text: textSpan,

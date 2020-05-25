@@ -1,8 +1,7 @@
 import 'dart:math';
 
 import 'package:f_charts/extensions.dart';
-import 'package:f_charts/model/base.dart';
-import 'package:f_charts/model/stuff.dart';
+import 'package:f_charts/data_models/_.dart';
 import 'package:f_charts/utils.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';

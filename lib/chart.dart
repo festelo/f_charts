@@ -1,19 +1,10 @@
 import 'dart:async';
 
-import 'package:f_charts/chart_model/base_layer.dart';
-import 'package:f_charts/chart_model/decoration_layer.dart';
-import 'package:f_charts/chart_model/interaction_layer.dart';
-import 'package:f_charts/chart_model/move_layer.dart';
-import 'package:f_charts/chart_model/points_name_layer.dart';
-import 'package:f_charts/chart_model/theme.dart';
-import 'package:f_charts/model/base.dart';
+import 'package:f_charts/layers/_.dart';
+import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-
-import 'chart_model/layer.dart';
-import 'model/impl.dart';
-import 'model/stuff.dart';
-import 'dart:ui' as ui;
 
 class Chart extends StatefulWidget {
   final ChartData chartData;
@@ -36,7 +27,7 @@ class ChartPaint extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    for(final layer in layers) {
+    for (final layer in layers) {
       layer.draw(canvas, size);
     }
   }
@@ -44,9 +35,8 @@ class ChartPaint extends CustomPainter {
   @override
   bool hitTest(Offset position) {
     var hitted = false;
-    for(final l in layers) {
-      if(l.hitTest(position))
-        hitted = true;
+    for (final l in layers) {
+      if (l.hitTest(position)) hitted = true;
     }
     return hitted;
   }
@@ -59,7 +49,7 @@ class ChartPaint extends CustomPainter {
 
 class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   Offset offset = Offset(0, 0);
-  
+
   AnimationController moveAnimationController;
   MoveAnimation moveAnimation;
   ChartMoveLayer moveLayer;
@@ -72,11 +62,11 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     initLayers();
-    moveAnimationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 500)
-    );
-    moveAnimationController.addListener(() { setState(() {}); });
+    moveAnimationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    moveAnimationController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -99,19 +89,22 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     moveLayer = ChartMoveLayer(
       animation: moveAnimation,
       parent: moveAnimationController,
-      theme: widget.theme
+      theme: widget.theme,
     );
     await moveAnimationController.forward(from: 0);
     initLayers();
-    setState(() { });
+    setState(() {});
   }
 
   void initLayers() {
     baseLayer = ChartDrawBaseLayer.calculate(widget.chartData, widget.theme);
-    interactionLayer = ChartInteractionLayer.calculate(widget.chartData, widget.theme,
+    interactionLayer = ChartInteractionLayer.calculate(
+      widget.chartData,
+      widget.theme,
       pointPressed: widget.pointPressed,
     );
-    decorationLayer = ChartDecorationLayer.calculate(widget.chartData, widget.theme);
+    decorationLayer =
+        ChartDecorationLayer.calculate(widget.chartData, widget.theme);
   }
 
   @override
@@ -125,13 +118,10 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
           foregroundPainter: ChartPaint(
             layers: [
               decorationLayer,
-              if (!moveAnimationController.isAnimating)
-                baseLayer,
+              if (!moveAnimationController.isAnimating) baseLayer,
               interactionLayer,
-              if (moveAnimationController.isAnimating) 
-                moveLayer
+              if (moveAnimationController.isAnimating) moveLayer
             ],
-            //xPointerLine: xPointerLine,
           ),
           child: GestureDetector(
             onHorizontalDragDown: (d) {

@@ -4,27 +4,27 @@ class IntDateChartEntity extends ChartEntity<IntMeasure, DateMeasure> {
   final IntMeasure abscissa;
   final DateMeasure ordinate;
 
-  IntDateChartEntity(int abscissa, DateTime ordinate):
-    abscissa = IntMeasure(abscissa),
-    ordinate = DateMeasure(ordinate);
+  IntDateChartEntity(int abscissa, DateTime ordinate)
+      : abscissa = IntMeasure(abscissa),
+        ordinate = DateMeasure(ordinate);
 }
 
 class DateIntChartEntity extends ChartEntity<DateMeasure, IntMeasure> {
   final DateMeasure abscissa;
   final IntMeasure ordinate;
 
-  DateIntChartEntity(DateTime abscissa, int ordinate):
-    abscissa = DateMeasure(abscissa),
-    ordinate = IntMeasure(ordinate);
+  DateIntChartEntity(DateTime abscissa, int ordinate)
+      : abscissa = DateMeasure(abscissa),
+        ordinate = IntMeasure(ordinate);
 }
 
 class IntChartEntity extends ChartEntity<IntMeasure, IntMeasure> {
   final IntMeasure abscissa;
   final IntMeasure ordinate;
 
-  IntChartEntity(int abscissa, int ordinate):
-    abscissa = IntMeasure(abscissa),
-    ordinate = IntMeasure(ordinate);
+  IntChartEntity(int abscissa, int ordinate)
+      : abscissa = IntMeasure(abscissa),
+        ordinate = IntMeasure(ordinate);
 }
 
 class DateMeasure extends Measure<DateTime> {
@@ -38,7 +38,8 @@ class DateMeasure extends Measure<DateTime> {
 
   @override
   double stepValue(DateTime min) {
-    return (value.millisecondsSinceEpoch - min.millisecondsSinceEpoch).toDouble();
+    return (value.millisecondsSinceEpoch - min.millisecondsSinceEpoch)
+        .toDouble();
   }
 }
 

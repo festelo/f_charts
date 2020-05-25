@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:f_charts/chart.dart';
-import 'package:f_charts/chart_model/theme.dart';
+import 'package:f_charts/chart_models/theme.dart';
+import 'package:f_charts/data_models/base.dart';
+import 'package:f_charts/data_models/impl.dart';
 import 'package:flutter/material.dart';
-
-import 'model/base.dart';
-import 'model/impl.dart';
 
 void main() {
   runApp(MyApp());
@@ -65,45 +62,43 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<ChartData> get data => [
-    ChartData([
-      ChartSeries(color: Colors.red, name: '1', entities: [
-        IntChartEntity(0, 1),
-        IntChartEntity(1, 2),
-        IntChartEntity(3, 1),
-        IntChartEntity(4, 0),
-      ]),
-      ChartSeries(color: Colors.orange, name: '2', entities: [
-        IntChartEntity(1, 1),
-        IntChartEntity(3, 5),
-        IntChartEntity(4, 10),
-      ]),
-    ]),
-    ChartData([
-      ChartSeries(color: Colors.red, name: '1', entities: [
-        IntChartEntity(0, 3),
-        IntChartEntity(1, 0),
-        IntChartEntity(4, 5),
-      ]),
-      ChartSeries(color: Colors.orange, name: '2', entities: [
-        IntChartEntity(1, 1),
-        IntChartEntity(2, 3),
-        IntChartEntity(3, 1),
-        IntChartEntity(10, 2),
-      ]),
-    ]),
-  ];
+        ChartData([
+          ChartSeries(color: Colors.red, name: '1', entities: [
+            IntChartEntity(0, 1),
+            IntChartEntity(1, 2),
+            IntChartEntity(3, 1),
+            IntChartEntity(4, 0),
+          ]),
+          ChartSeries(color: Colors.orange, name: '2', entities: [
+            IntChartEntity(1, 1),
+            IntChartEntity(3, 5),
+            IntChartEntity(4, 10),
+          ]),
+        ]),
+        ChartData([
+          ChartSeries(color: Colors.red, name: '1', entities: [
+            IntChartEntity(0, 3),
+            IntChartEntity(1, 0),
+            IntChartEntity(4, 5),
+          ]),
+          ChartSeries(color: Colors.orange, name: '2', entities: [
+            IntChartEntity(1, 1),
+            IntChartEntity(2, 3),
+            IntChartEntity(3, 1),
+            IntChartEntity(10, 2),
+          ]),
+        ]),
+      ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Chart(
-          theme: ChartTheme().copyWith(
-            yMarkersCount: 6
-          ),
+          theme: ChartTheme().copyWith(yMarkersCount: 6),
           chartData: data[dataNum],
-          pointPressed: () => setState(() => 
-            dataNum = (dataNum+1) % data.length),
+          pointPressed: () =>
+              setState(() => dataNum = (dataNum + 1) % data.length),
         ),
       ),
     );

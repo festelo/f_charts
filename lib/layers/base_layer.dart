@@ -1,11 +1,10 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart_model/layer.dart';
+import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/data_models/_.dart';
 import 'package:f_charts/extensions.dart';
-import 'package:f_charts/model/base.dart';
-import 'package:f_charts/model/stuff.dart';
 
-import 'theme.dart';
+import 'layer.dart';
 
 class ChartDrawBaseLayer extends Layer {
   final List<RelativePoint> points;
@@ -35,7 +34,6 @@ class ChartDrawBaseLayer extends Layer {
     ChartSeries series,
     ChartBounds bounds,
   ) {
-
     if (series.entities.isEmpty) return;
     RelativeOffset bo;
 

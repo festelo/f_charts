@@ -1,7 +1,6 @@
-
 import 'dart:math';
 
-import 'model/stuff.dart';
+import 'package:f_charts/data_models/_.dart';
 import 'extensions.dart';
 
 Point intersection(Pair<Point> l1, Pair<Point> l2) {
@@ -15,8 +14,7 @@ Point intersection(Pair<Point> l1, Pair<Point> l2) {
 
   double delta = (a1 * b2 - a2 * b1).toDouble();
 
-  if (delta == 0) 
-      return null;
+  if (delta == 0) return null;
 
   double x = (b2 * c1 - b1 * c2) / delta;
   double y = (a1 * c2 - a2 * c1) / delta;
@@ -26,12 +24,12 @@ Point intersection(Pair<Point> l1, Pair<Point> l2) {
 Point partOf(Pair<Point> line, double c1) {
   var a = line.x2 - line.x1;
   var b = line.y2 - line.y1;
-  var c = sqrt(b*b + a*a);
+  var c = sqrt(b * b + a * a);
 
-  var sin = b/c;
+  var sin = b / c;
   var b1 = min(c1, c) * sin;
 
-  var cos = a/c;
+  var cos = a / c;
   var a1 = min(c1, c) * cos;
   return Point(line.x2 - a1, line.y2 - b1);
 }

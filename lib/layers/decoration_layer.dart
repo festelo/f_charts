@@ -1,10 +1,9 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart_model/layer.dart';
-import 'package:f_charts/model/base.dart';
-import 'package:f_charts/model/stuff.dart';
+import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/data_models/_.dart';
 
-import 'theme.dart';
+import 'layer.dart';
 
 class ChartDecorationLayer extends Layer {
   final List<RelativeLine> yAxisMarkers;

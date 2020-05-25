@@ -1,5 +1,3 @@
-
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -27,7 +25,7 @@ class RelativeOffset {
 
   RelativeOffset reverseX() => copy()..dx = 1 - dx;
 
-  RelativeOffset operator +(Object other) { 
+  RelativeOffset operator +(Object other) {
     if (other is RelativeOffset) {
       return copy()
         ..dx = dx + other.dx
@@ -41,7 +39,7 @@ class RelativeOffset {
     }
   }
 
-  RelativeOffset operator -(Object other) { 
+  RelativeOffset operator -(Object other) {
     if (other is RelativeOffset) {
       return copy()
         ..dx = dx - other.dx
@@ -69,7 +67,7 @@ class RelativeOffset {
     }
   }
 
-  RelativeOffset operator /(Object other) { 
+  RelativeOffset operator /(Object other) {
     if (other is RelativeOffset) {
       return copy()
         ..dx = dx / other.dx
@@ -82,8 +80,8 @@ class RelativeOffset {
       throw Exception('RelativeOffset or num expected');
     }
   }
-  RelativeOffset copy() =>
-      RelativeOffset(dx, dy);
+
+  RelativeOffset copy() => RelativeOffset(dx, dy);
 
   Offset toOffset(Size size) {
     final pointX = dx * size.width;
@@ -92,13 +90,11 @@ class RelativeOffset {
   }
 
   @override
-  bool operator ==(Object other) => other is RelativeOffset && 
-    dx == other.dx &&
-    dy == other.dy;
+  bool operator ==(Object other) =>
+      other is RelativeOffset && dx == other.dx && dy == other.dy;
 
   @override
   int get hashCode => hash2(dx, dy);
-
 
   @override
   String toString() => '(${dx.toStringAsFixed(2)}; ${dy.toStringAsFixed(2)})';
@@ -108,11 +104,10 @@ class Pair<T> {
   final T a;
   final T b;
   Pair(this.a, this.b);
-  
+
   @override
-  bool operator ==(Object other) => other is Pair<T> && 
-    a == other.a &&
-    b == other.b;
+  bool operator ==(Object other) =>
+      other is Pair<T> && a == other.a && b == other.b;
 
   @override
   int get hashCode => hash2(a, b);

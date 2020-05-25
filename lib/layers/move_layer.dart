@@ -1,13 +1,13 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart_animation/animated_series.dart';
-import 'package:f_charts/chart_model/layer.dart';
-import 'package:f_charts/model/base.dart';
+import 'package:f_charts/chart_animations/animated_series.dart';
+import 'package:f_charts/chart_models/theme.dart';
+import 'package:f_charts/data_models/base.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'theme.dart';
+import 'layer.dart';
 
 typedef AnimatedSeriesBuilder = AnimatedSeries Function(
   ChartBounds boundsFrom,
@@ -49,7 +49,8 @@ class MoveAnimation {
     for (final key in mappedFrom.keys) {
       series.add(animatedSeriesBuilder(
           boundsFrom, boundsTo, mappedFrom[key], mappedTo[key]));
-    };
+    }
+    ;
     return MoveAnimation(
       series,
       boundsFrom: boundsFrom,
