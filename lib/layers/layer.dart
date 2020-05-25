@@ -8,4 +8,8 @@ abstract class Layer {
   bool hitTest(Offset position) {
     return false;
   }
+
+  bool shouldDraw() {
+    return true;
+  }
 }

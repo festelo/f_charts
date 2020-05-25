@@ -11,17 +11,23 @@ class PointsNameLayer extends Layer {
   final List<RelativeText> pointTexts;
 
   final ChartTheme theme;
+  final ChartState state;
 
   PointsNameLayer({
     List<RelativeText> pointTexts,
     List<RelativeLine> lines,
-    this.theme,
+    @required this.theme,
+    @required this.state,
   })  : assert(theme != null),
         pointTexts = pointTexts ?? [];
 
-  factory PointsNameLayer.calculate(ChartData data, ChartTheme theme) {
+  factory PointsNameLayer.calculate(
+    ChartData data,
+    ChartTheme theme,
+    ChartState state,
+  ) {
     final bounds = data.getBounds();
-    final layer = PointsNameLayer(theme: theme);
+    final layer = PointsNameLayer(theme: theme, state: state);
 
     for (final s in data.series) {
       layer._placeTexts(s, bounds);
@@ -51,6 +57,9 @@ class PointsNameLayer extends Layer {
     textPainter.layout();
     pointTexts.add(RelativeText(a, textPainter));
   }
+
+  @override
+  bool shouldDraw() => !state.isMoving;
 
   @override
   bool themeChangeAffected(ChartTheme theme) {

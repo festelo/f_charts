@@ -3,26 +3,33 @@ import 'dart:ui';
 import 'package:f_charts/chart_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 import 'package:f_charts/extensions.dart';
+import 'package:flutter/material.dart';
 
 import 'layer.dart';
 
 class ChartDrawBaseLayer extends Layer {
   final List<RelativePoint> points;
   final List<RelativeLine> lines;
+  final ChartState state;
 
   final ChartTheme theme;
 
   ChartDrawBaseLayer({
     List<RelativePoint> points,
     List<RelativeLine> lines,
-    this.theme,
+    @required this.theme,
+    @required this.state,
   })  : assert(theme != null),
         points = points ?? [],
         lines = lines ?? [];
 
-  factory ChartDrawBaseLayer.calculate(ChartData data, ChartTheme theme) {
+  factory ChartDrawBaseLayer.calculate(
+    ChartData data,
+    ChartTheme theme,
+    ChartState state,
+  ) {
     final bounds = data.getBounds();
-    final layer = ChartDrawBaseLayer(theme: theme);
+    final layer = ChartDrawBaseLayer(theme: theme, state: state);
 
     for (final s in data.series) {
       layer._placeSeries(s, bounds);
@@ -67,6 +74,9 @@ class ChartDrawBaseLayer extends Layer {
   bool themeChangeAffected(ChartTheme theme) {
     return theme.line != this.theme.line || theme.point != this.theme.point;
   }
+
+  @override
+  bool shouldDraw() => !state.isMoving;
 
   @override
   void draw(Canvas canvas, Size size) {

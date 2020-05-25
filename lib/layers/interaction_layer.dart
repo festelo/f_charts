@@ -15,6 +15,7 @@ class ChartInteractionLayer extends Layer {
   final ChartTheme theme;
   final List<RelativeLine> lines;
   final List<RelativePoint> points;
+  final ChartState state;
 
   final void Function() pointPressed;
 
@@ -43,20 +44,25 @@ class ChartInteractionLayer extends Layer {
     return cachedAbsoluteLines;
   }
 
-  ChartInteractionLayer(
-      {this.theme,
-      this.pointPressed,
-      List<RelativeLine> lines,
-      List<RelativePoint> points})
-      : assert(theme != null),
+  ChartInteractionLayer({
+    @required this.theme,
+    @required this.state,
+    this.pointPressed,
+    List<RelativeLine> lines,
+    List<RelativePoint> points,
+  })  : assert(theme != null),
         lines = lines ?? [],
         points = points ?? [];
 
-  factory ChartInteractionLayer.calculate(ChartData data, ChartTheme theme,
-      {void Function() pointPressed}) {
+  factory ChartInteractionLayer.calculate(
+    ChartData data,
+    ChartTheme theme,
+    ChartState state, {
+    void Function() pointPressed,
+  }) {
     final bounds = data.getBounds();
-    final layer =
-        ChartInteractionLayer(theme: theme, pointPressed: pointPressed);
+    final layer = ChartInteractionLayer(
+        theme: theme, pointPressed: pointPressed, state: state);
 
     for (final s in data.series) {
       layer._placeSeries(s, bounds);
@@ -94,7 +100,8 @@ class ChartInteractionLayer extends Layer {
   bool hitTest(Offset position) {
     if (pointPressed == null ||
         cachedAbsolutePoints == null ||
-        cachedAbsolutePoints.isEmpty) return super.hitTest(position);
+        cachedAbsolutePoints.isEmpty ||
+        state.isMoving) return super.hitTest(position);
 
     for (final o in cachedAbsolutePoints) {
       final diff = o - position;
@@ -111,6 +118,9 @@ class ChartInteractionLayer extends Layer {
   bool themeChangeAffected(ChartTheme theme) {
     return false;
   }
+
+  @override
+  bool shouldDraw() => !state.isMoving;
 
   @override
   void draw(Canvas canvas, Size size) {

@@ -6,6 +6,8 @@ import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import 'chart_controller.dart';
+
 class Chart extends StatefulWidget {
   final ChartData chartData;
   final VoidCallback pointPressed;
@@ -28,7 +30,7 @@ class ChartPaint extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (final layer in layers) {
-      layer.draw(canvas, size);
+      if (layer.shouldDraw()) layer.draw(canvas, size);
     }
   }
 
@@ -48,23 +50,18 @@ class ChartPaint extends CustomPainter {
 }
 
 class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
-  Offset offset = Offset(0, 0);
-
-  AnimationController moveAnimationController;
-  MoveAnimation moveAnimation;
-  ChartMoveLayer moveLayer;
-
-  ChartDrawBaseLayer baseLayer;
-  ChartInteractionLayer interactionLayer;
-  ChartDecorationLayer decorationLayer;
+  ChartController chartController;
 
   @override
   void initState() {
     super.initState();
-    initLayers();
-    moveAnimationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
-    moveAnimationController.addListener(() {
+    chartController = ChartController(
+      widget.theme,
+      this,
+      pointPressed: widget.pointPressed,
+    );
+    chartController.initLayers(widget.chartData);
+    chartController.addListener(() {
       setState(() {});
     });
   }
@@ -81,30 +78,11 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     super.dispose();
-    moveAnimationController?.dispose();
+    chartController?.dispose();
   }
 
   Future<void> startAnimation(ChartData from, ChartData to) async {
-    moveAnimation = MoveAnimation.between(from, to);
-    moveLayer = ChartMoveLayer(
-      animation: moveAnimation,
-      parent: moveAnimationController,
-      theme: widget.theme,
-    );
-    await moveAnimationController.forward(from: 0);
-    initLayers();
-    setState(() {});
-  }
-
-  void initLayers() {
-    baseLayer = ChartDrawBaseLayer.calculate(widget.chartData, widget.theme);
-    interactionLayer = ChartInteractionLayer.calculate(
-      widget.chartData,
-      widget.theme,
-      pointPressed: widget.pointPressed,
-    );
-    decorationLayer =
-        ChartDecorationLayer.calculate(widget.chartData, widget.theme);
+    await chartController.move(from, to);
   }
 
   @override
@@ -115,29 +93,16 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
       child: GestureDetector(
         child: CustomPaint(
           size: Size.infinite,
-          foregroundPainter: ChartPaint(
-            layers: [
-              decorationLayer,
-              if (!moveAnimationController.isAnimating) baseLayer,
-              interactionLayer,
-              if (moveAnimationController.isAnimating) moveLayer
-            ],
-          ),
+          foregroundPainter: ChartPaint(layers: chartController.layers),
           child: GestureDetector(
             onHorizontalDragDown: (d) {
-              setState(() {
-                interactionLayer.xPosition = d.localPosition.dx;
-              });
+              chartController.setXPosition(d.localPosition.dx);
             },
             onHorizontalDragEnd: (d) {
-              setState(() {
-                interactionLayer.xPosition = null;
-              });
+              chartController.setXPosition(null);
             },
             onHorizontalDragUpdate: (d) {
-              setState(() {
-                interactionLayer.xPosition = d.localPosition.dx;
-              });
+              chartController.setXPosition(d.localPosition.dx);
             },
           ),
         ),

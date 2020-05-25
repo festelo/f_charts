@@ -1,3 +1,4 @@
-class ChartStateInfo {
-  bool isAnimating;
+class ChartState {
+  bool isMoving = false;
+  ChartState();
 }
