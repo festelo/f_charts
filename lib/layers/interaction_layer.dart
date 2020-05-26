@@ -171,25 +171,16 @@ class ChartInteractionLayer<T1, T2, TE extends ChartEntity<T1, T2>>
   }
 
   Paint _gradientPaint(Size gradientSize, Offset offset, Color color,
-      {bool reversed = false, bool bidirectional = false}) {
-    List<Color> colors;
-    if (bidirectional) {
-      colors = [
-        color.withOpacity(0), 
-        color,
-        color.withOpacity(0), 
-      ];
-    } else {
-      colors = [
-        color.withOpacity(0), 
-        color,
-      ];
-      if (!reversed) colors = colors.reversed.toList();
-    }
+      {bool reversed = false}) {
     return Paint()
       ..strokeWidth = 3
       ..shader = LinearGradient(
-        colors: colors,
+        colors: [
+          color.withOpacity(0), 
+          color,
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
       ).createShader(offset & gradientSize);
   }
 
@@ -253,7 +244,18 @@ class ChartInteractionLayer<T1, T2, TE extends ChartEntity<T1, T2>>
   }
 
   void _drawZeroMarker(Canvas canvas, Size size, Offset cross, Color color, String text, {bool inactive = false}) {
-    var linePaint = _gradientPaint(Size(1, 20), Offset(0, 0), color, bidirectional: true);
+    var linePaint = Paint()
+      ..strokeWidth = 1
+      ..shader = LinearGradient(
+        colors: [
+          color.withOpacity(0), 
+          color,
+          color,
+          color.withOpacity(0), 
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Offset(cross.dx, cross.dy - 10) & Size(1, 20));
     canvas.drawLine(
       Offset(0, cross.dy - 10),
       Offset(0, cross.dy + 10),
@@ -323,40 +325,38 @@ class ChartInteractionLayer<T1, T2, TE extends ChartEntity<T1, T2>>
       Pair(line.a.toPoint(), cross),
       20,
     );
+    var partLeft = Offset(partPointLeft.x.toDouble(), partPointLeft.y.toDouble());
     var partPointRight = partOf(
       Pair(line.b.toPoint(), cross),
       20,
     );
-    canvas.drawLine(
-      Offset(
-        partPointLeft.x.toDouble(),
-        partPointLeft.y.toDouble(),
-      ),
-      Offset(cross.x.toDouble(), cross.y.toDouble()),
-      _gradientPaint(
+    var partRight = Offset(partPointRight.x.toDouble(), partPointRight.y.toDouble());
+    
+    var paint = Paint()
+      ..strokeWidth = 3
+      ..shader = LinearGradient(
+        colors: [
+          Colors.grey.withOpacity(0), 
+          Colors.grey,
+          Colors.grey.withOpacity(0), 
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(partLeft & 
         Size(
-          (cross.x - partPointLeft.x).toDouble(),
-          (cross.y - partPointLeft.y).toDouble(),
-        ),
-        Offset(
-          partPointLeft.x.toDouble(),
-          partPointLeft.y.toDouble(),
-        ),
-        Colors.grey,
-        reversed: true,
-      ),
+          partRight.dx - partLeft.dx,
+          partRight.dy - partLeft.dy,
+        ));
+
+    canvas.drawLine(
+      partLeft,
+      offset,
+      paint,
     );
     canvas.drawLine(
-      Offset(partPointRight.x.toDouble(), partPointRight.y.toDouble()),
-      Offset(cross.x.toDouble(), cross.y.toDouble()),
-      _gradientPaint(
-        Size(
-          (partPointRight.x - cross.x).toDouble(),
-          (partPointRight.y - cross.y).toDouble(),
-        ),
-        Offset(cross.x.toDouble(), cross.y.toDouble()),
-        Colors.grey,
-      ),
+      partRight,
+      offset,
+      paint,
     );
   }
 }
