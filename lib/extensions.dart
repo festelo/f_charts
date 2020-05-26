@@ -47,7 +47,7 @@ extension ChartBoundsExtensions<T1, T2> on ChartBounds<T1, T2> {
 }
 
 extension ChartSeriesExtensions<T1, T2>
-    on ChartEntity<Measure<T1>, Measure<T2>> {
+    on ChartEntity<T1, T2> {
       
   RelativeOffset toRelativeOffset(ChartBounds<T1, T2> bounds) {
     return RelativeOffset.withViewport(

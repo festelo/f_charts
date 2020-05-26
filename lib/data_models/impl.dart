@@ -1,6 +1,6 @@
 import 'base.dart';
 
-class IntDateChartEntity extends ChartEntity<IntMeasure, DateMeasure> {
+class IntDateChartEntity extends ChartEntity<int, DateTime> {
   final IntMeasure abscissa;
   final DateMeasure ordinate;
 
@@ -9,7 +9,7 @@ class IntDateChartEntity extends ChartEntity<IntMeasure, DateMeasure> {
         ordinate = DateMeasure(ordinate);
 }
 
-class DateIntChartEntity extends ChartEntity<DateMeasure, IntMeasure> {
+class DateIntChartEntity extends ChartEntity<DateTime, int> {
   final DateMeasure abscissa;
   final IntMeasure ordinate;
 
@@ -18,7 +18,7 @@ class DateIntChartEntity extends ChartEntity<DateMeasure, IntMeasure> {
         ordinate = IntMeasure(ordinate);
 }
 
-class IntChartEntity extends ChartEntity<IntMeasure, IntMeasure> {
+class IntChartEntity extends ChartEntity<int, int> {
   final IntMeasure abscissa;
   final IntMeasure ordinate;
 

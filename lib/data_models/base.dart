@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 class ChartData<TAbscissa, TOrdinate,
-    TChartEntity extends ChartEntity<Measure<TAbscissa>, Measure<TOrdinate>>> {
+    TChartEntity extends ChartEntity<TAbscissa, TOrdinate>> {
   final List<ChartSeries<TAbscissa, TOrdinate, TChartEntity>> series;
   const ChartData(this.series);
 
@@ -59,7 +59,7 @@ class ChartData<TAbscissa, TOrdinate,
 }
 
 class ChartSeries<TAbscissa, TOrdinate,
-    TEntity extends ChartEntity<Measure<TAbscissa>, Measure<TOrdinate>>> {
+    TEntity extends ChartEntity<TAbscissa, TOrdinate>> {
   final List<TEntity> entities;
   final Color color;
   final String name;
@@ -97,10 +97,9 @@ class ChartBounds<TAbscissa, TOrdinate> {
       this.minAbscissa, this.maxAbscissa, this.minOrdinate, this.maxOrdinate);
 }
 
-abstract class ChartEntity<TAbscissa extends Measure,
-    TOrdinate extends Measure> {
-  TOrdinate get ordinate;
-  TAbscissa get abscissa;
+abstract class ChartEntity<TAbscissa, TOrdinate> {
+  Measure<TOrdinate> get ordinate;
+  Measure<TAbscissa> get abscissa;
 }
 
 abstract class Measure<T> {
