@@ -63,25 +63,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<ChartData> get data => [
         ChartData([
-          ChartSeries(color: Colors.red, name: '1', entities: [
+          ChartSeries(color: Colors.red, name: 'First series', entities: [
             IntChartEntity(0, 1),
             IntChartEntity(1, 2),
             IntChartEntity(3, 1),
             IntChartEntity(4, 0),
           ]),
-          ChartSeries(color: Colors.orange, name: '2', entities: [
+          ChartSeries(color: Colors.orange, name: 'Second series', entities: [
             IntChartEntity(1, 1),
             IntChartEntity(3, 5),
             IntChartEntity(4, 10),
           ]),
         ]),
         ChartData([
-          ChartSeries(color: Colors.red, name: '1', entities: [
+          ChartSeries(color: Colors.red, name: 'First series', entities: [
             IntChartEntity(0, 3),
             IntChartEntity(1, 0),
             IntChartEntity(4, 5),
           ]),
-          ChartSeries(color: Colors.orange, name: '2', entities: [
+          ChartSeries(color: Colors.orange, name: 'Second series', entities: [
             IntChartEntity(1, 1),
             IntChartEntity(2, 3),
             IntChartEntity(3, 1),
@@ -97,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Chart(
           theme: ChartTheme().copyWith(yMarkersCount: 6),
           chartData: data[dataNum],
-          pointPressed: () =>
+          pointPressed: (_) =>
               setState(() => dataNum = (dataNum + 1) % data.length),
         ),
       ),

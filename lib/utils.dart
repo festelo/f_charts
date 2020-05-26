@@ -25,6 +25,7 @@ Point partOf(Pair<Point> line, double c1) {
   var a = line.x2 - line.x1;
   var b = line.y2 - line.y1;
   var c = sqrt(b * b + a * a);
+  if (c == 0) return line.a;
 
   var sin = b / c;
   var b1 = min(c1, c) * sin;

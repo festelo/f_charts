@@ -12,7 +12,7 @@ class ChartController implements Listenable {
   final ChartState state;
   final ChartTheme theme;
 
-  final VoidCallback pointPressed;
+  final PointPressedCallback pointPressed;
 
   ChartController(this.theme, TickerProvider vsync,
       {ChartState state = null, this.pointPressed})

@@ -56,4 +56,7 @@ class IntMeasure extends Measure<int> {
   double stepValue(int min) {
     return (value - min).toDouble();
   }
+
+  @override
+  String toString() => value.toString();
 }

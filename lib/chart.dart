@@ -10,7 +10,7 @@ import 'chart_controller.dart';
 
 class Chart extends StatefulWidget {
   final ChartData chartData;
-  final VoidCallback pointPressed;
+  final PointPressedCallback pointPressed;
   final ChartTheme theme;
 
   Chart({this.chartData, this.theme = const ChartTheme(), this.pointPressed});
