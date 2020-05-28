@@ -1,7 +1,6 @@
 import 'package:f_charts/chart.dart';
-import 'package:f_charts/chart_models/theme.dart';
-import 'package:f_charts/data_models/base.dart';
-import 'package:f_charts/data_models/impl.dart';
+import 'package:f_charts/widget_models/_.dart';
+import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -61,31 +60,31 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  List<ChartData> get data => [
+  List<ChartData<int, int>> get data => [
         ChartData([
           ChartSeries(color: Colors.red, name: 'First series', entities: [
-            IntChartEntity(0, 1),
-            IntChartEntity(1, 2),
-            IntChartEntity(3, 1),
-            IntChartEntity(4, 0),
+            ChartEntity(0, 1),
+            ChartEntity(1, 2),
+            ChartEntity(3, 1),
+            ChartEntity(4, 0),
           ]),
           ChartSeries(color: Colors.orange, name: 'Second series', entities: [
-            IntChartEntity(1, 1),
-            IntChartEntity(3, 5),
-            IntChartEntity(4, 10),
+            ChartEntity(1, 1),
+            ChartEntity(3, 5),
+            ChartEntity(4, 10),
           ]),
         ]),
         ChartData([
           ChartSeries(color: Colors.red, name: 'First series', entities: [
-            IntChartEntity(0, 3),
-            IntChartEntity(1, 0),
-            IntChartEntity(4, 5),
+            ChartEntity(0, 3),
+            ChartEntity(1, 0),
+            ChartEntity(4, 5),
           ]),
           ChartSeries(color: Colors.orange, name: 'Second series', entities: [
-            IntChartEntity(1, 1),
-            IntChartEntity(2, 3),
-            IntChartEntity(3, 1),
-            IntChartEntity(10, 2),
+            ChartEntity(1, 1),
+            ChartEntity(2, 3),
+            ChartEntity(3, 1),
+            ChartEntity(10, 2),
           ]),
         ]),
       ];
@@ -96,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Chart(
           theme: ChartTheme().copyWith(yMarkersCount: 6),
+          mapper: ChartMapper(IntMapper(), IntMapper()),
           chartData: data[dataNum],
           pointPressed: (_) =>
               setState(() => dataNum = (dataNum + 1) % data.length),

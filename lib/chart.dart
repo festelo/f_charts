@@ -1,19 +1,24 @@
 import 'dart:async';
 
 import 'package:f_charts/layers/_.dart';
-import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 import 'chart_controller.dart';
 
-class Chart extends StatefulWidget {
-  final ChartData chartData;
+class Chart<T1, T2> extends StatefulWidget {
+  final ChartData<T1, T2> chartData;
+  final ChartMapper<T1, T2> mapper;
   final PointPressedCallback pointPressed;
   final ChartTheme theme;
 
-  Chart({this.chartData, this.theme = const ChartTheme(), this.pointPressed});
+  Chart({
+    @required this.chartData,
+    @required this.mapper,
+    this.theme = const ChartTheme(),
+    this.pointPressed,
+  });
   @override
   _ChartState createState() => _ChartState();
 }
@@ -57,6 +62,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     super.initState();
     chartController = ChartController(
       widget.theme,
+      widget.mapper,
       this,
       pointPressed: widget.pointPressed,
     );

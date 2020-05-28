@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 import 'package:f_charts/extensions.dart';
 import 'package:flutter/material.dart';
@@ -27,19 +27,21 @@ class ChartDrawBaseLayer extends Layer {
     ChartData data,
     ChartTheme theme,
     ChartState state,
+    ChartMapper mapper,
   ) {
-    final bounds = data.getBounds();
+    final bounds = ChartBoundsDoubled.fromData(data, mapper);
     final layer = ChartDrawBaseLayer(theme: theme, state: state);
 
     for (final s in data.series) {
-      layer._placeSeries(s, bounds);
+      layer._placeSeries(s, bounds, mapper);
     }
     return layer;
   }
 
   void _placeSeries(
     ChartSeries series,
-    ChartBounds bounds,
+    ChartBoundsDoubled bounds,
+    ChartMapper mapper,
   ) {
     if (series.entities.isEmpty) return;
     RelativeOffset bo;
@@ -47,12 +49,12 @@ class ChartDrawBaseLayer extends Layer {
     for (var i = 1; i < series.entities.length; i++) {
       var a = series.entities[i - 1];
       var b = series.entities[i];
-      final ao = a.toRelativeOffset(bounds);
-      bo = b.toRelativeOffset(bounds);
+      final ao = a.toRelativeOffset(mapper, bounds);
+      bo = b.toRelativeOffset(mapper, bounds);
       placeLine(ao, bo, series.color);
       placePoint(ao, series.color);
     }
-    placePoint(bo ?? series.entities[0].toRelativeOffset(bounds), series.color);
+    placePoint(bo ?? series.entities[0].toRelativeOffset(mapper, bounds), series.color);
   }
 
   void placePoint(RelativeOffset o, Color color) {

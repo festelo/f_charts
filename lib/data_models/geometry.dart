@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:quiver_hashcode/hashcode.dart';
 
 class RelativeOffset {
@@ -98,38 +98,6 @@ class RelativeOffset {
 
   @override
   String toString() => '(${dx.toStringAsFixed(2)}; ${dy.toStringAsFixed(2)})';
-}
-
-class Pair<T> {
-  final T a;
-  final T b;
-  Pair(this.a, this.b);
-
-  @override
-  bool operator ==(Object other) =>
-      other is Pair<T> && a == other.a && b == other.b;
-
-  @override
-  int get hashCode => hash2(a, b);
-
-  @override
-  String toString() => 'Pair($a, $b)';
-}
-
-class Tuple<TA, TB> {
-  final TA a;
-  final TB b;
-  Tuple(this.a, this.b);
-
-  @override
-  bool operator ==(Object other) =>
-      other is Tuple<TA, TB> && a == other.a && b == other.b;
-
-  @override
-  int get hashCode => hash2(a, b);
-
-  @override
-  String toString() => 'Tuple($a, $b)';
 }
 
 class RelativeLine {

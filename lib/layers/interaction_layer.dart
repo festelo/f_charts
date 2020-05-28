@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 import 'package:f_charts/utils.dart';
 import 'package:f_charts/extensions.dart';
@@ -12,11 +12,11 @@ import 'layer.dart';
 
 typedef PointPressedCallback<T1, T2> = Function(ChartEntity<T1, T2> entity);
 
-class IntersactionInfo<TE extends ChartEntity> {
+class IntersactionInfo<T1, T2> {
   final Pair<Offset> line;
   final Offset offset;
-  final Pair<TE> entities;
-  final TE nearestEntity;
+  final Pair<ChartEntity<T1, T2>> entities;
+  final ChartEntity<T1, T2> nearestEntity;
   final double deltaToNearest;
   IntersactionInfo({
     @required this.line,
@@ -27,19 +27,19 @@ class IntersactionInfo<TE extends ChartEntity> {
   });
 }
 
-class ChartInteractionLayer<T1, T2, TE extends ChartEntity<T1, T2>>
+class ChartInteractionLayer<T1, T2>
     extends Layer {
   double xPositionAbs;
   final ChartTheme theme;
-  final Map<ChartSeries<T1, T2, TE>, List<RelativeLine>> seriesLines;
-  final Map<TE, RelativePoint> entityPoints;
+  final Map<ChartSeries<T1, T2>, List<RelativeLine>> seriesLines;
+  final Map<ChartEntity<T1, T2>, RelativePoint> entityPoints;
   final ChartState state;
 
-  final void Function(TE e) pointPressed;
+  final void Function(ChartEntity<T1, T2> e) pointPressed;
 
   Size cachedSize;
 
-  Map<TE, Offset> cachedEntityPointsAbs;
+  Map<ChartEntity<T1, T2>, Offset> cachedEntityPointsAbs;
 
   void recalculateCache(Size size) {
     if (size == cachedSize) return;
@@ -64,55 +64,57 @@ class ChartInteractionLayer<T1, T2, TE extends ChartEntity<T1, T2>>
     @required this.theme,
     @required this.state,
     this.pointPressed,
-    Map<ChartSeries<T1, T2, TE>, List<RelativeLine>> seriesLines,
-    Map<TE, RelativePoint> entityPoints,
+    Map<ChartSeries<T1, T2>, List<RelativeLine>> seriesLines,
+    Map<ChartEntity<T1, T2>, RelativePoint> entityPoints,
   })  : assert(theme != null),
         seriesLines = seriesLines ?? {},
         entityPoints = entityPoints ?? {};
 
   factory ChartInteractionLayer.calculate(
-    ChartData<T1, T2, TE> data,
+    ChartData<T1, T2> data,
     ChartTheme theme,
-    ChartState state, {
+    ChartState state,
+    ChartMapper<T1, T2> mapper, {
     PointPressedCallback pointPressed,
   }) {
-    final bounds = data.getBounds();
-    final layer = ChartInteractionLayer<T1, T2, TE>(
+    final bounds = ChartBoundsDoubled.fromData(data, mapper);
+    final layer = ChartInteractionLayer<T1, T2>(
         theme: theme, pointPressed: pointPressed, state: state);
 
     for (final s in data.series) {
-      layer._placeSeries(s, bounds);
+      layer._placeSeries(s, bounds, mapper);
     }
     return layer;
   }
 
   void _placeSeries(
-    ChartSeries<T1, T2, TE> series,
-    ChartBounds<T1, T2> bounds,
+    ChartSeries<T1, T2> series,
+    ChartBoundsDoubled bounds,
+    ChartMapper<T1, T2> mapper,
   ) {
     if (series.entities.isEmpty) return;
     RelativeOffset bo;
-    TE b;
+    ChartEntity<T1, T2> b;
 
     for (var i = 1; i < series.entities.length; i++) {
       var a = series.entities[i - 1];
       b = series.entities[i];
-      final ao = a.toRelativeOffset(bounds);
-      bo = b.toRelativeOffset(bounds);
+      final ao = a.toRelativeOffset(mapper, bounds);
+      bo = b.toRelativeOffset(mapper, bounds);
       placeLine(series, ao, bo);
       placePoint(a, ao);
     }
     if (b == null) b = series.entities[0];
-    if (bo == null) bo = b.toRelativeOffset(bounds);
+    if (bo == null) bo = b.toRelativeOffset(mapper, bounds);
     placePoint(b, bo);
   }
 
-  void placeLine(ChartSeries<T1, T2, TE> s, RelativeOffset a, RelativeOffset b) {
+  void placeLine(ChartSeries<T1, T2> s, RelativeOffset a, RelativeOffset b) {
     if (seriesLines[s] == null) seriesLines[s] = [];
     seriesLines[s].add(RelativeLine(a, b));
   }
 
-  void placePoint(TE e, RelativeOffset o) {
+  void placePoint(ChartEntity<T1, T2> e, RelativeOffset o) {
     entityPoints[e] = RelativePoint(o);
   }
 
@@ -170,22 +172,8 @@ class ChartInteractionLayer<T1, T2, TE extends ChartEntity<T1, T2>>
     );
   }
 
-  Paint _gradientPaint(Size gradientSize, Offset offset, Color color,
-      {bool reversed = false}) {
-    return Paint()
-      ..strokeWidth = 3
-      ..shader = LinearGradient(
-        colors: [
-          color.withOpacity(0), 
-          color,
-        ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(offset & gradientSize);
-  }
-
   IntersactionInfo getIntersactionWithSeries(
-    ChartSeries<T1, T2, TE> series,
+    ChartSeries<T1, T2> series,
     Size size,
     double xPosition,
   ) {
@@ -205,7 +193,7 @@ class ChartInteractionLayer<T1, T2, TE extends ChartEntity<T1, T2>>
         var deltaA = (xPosition - line.a.dx).abs();
         var deltaB = (xPosition - line.b.dx).abs();
         var nearestDelta = min(deltaA, deltaB);
-        return IntersactionInfo<TE>(
+        return IntersactionInfo(
           line: line, 
           offset: Offset(cross.x.toDouble(), cross.y.toDouble()), 
           entities: Pair(series.entities[i-1], series.entities[i]), 
@@ -219,7 +207,7 @@ class ChartInteractionLayer<T1, T2, TE extends ChartEntity<T1, T2>>
     var firstPoint = retrieveAbsolutePoint(first);
     var deltaFirst = (xPosition - firstPoint.dx).abs();
     if (deltaFirst < 10) {
-      return IntersactionInfo<TE>(
+      return IntersactionInfo(
         line: retrieveAbsoluteLine(first, series.entities[1]),
         offset: firstPoint,
         entities: Pair(first, series.entities[1]),
@@ -232,7 +220,7 @@ class ChartInteractionLayer<T1, T2, TE extends ChartEntity<T1, T2>>
     var lastPoint = retrieveAbsolutePoint(last);
     var deltaLast = (xPosition - lastPoint.dx).abs();
     if (deltaLast < 10) {
-      return IntersactionInfo<TE>(
+      return IntersactionInfo(
         line: retrieveAbsoluteLine(series.entities[series.entities.length-2], last),
         offset: lastPoint,
         entities: Pair(series.entities[series.entities.length-2], last),

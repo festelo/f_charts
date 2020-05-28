@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 
 import 'layer.dart';

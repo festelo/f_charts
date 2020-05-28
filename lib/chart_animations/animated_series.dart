@@ -56,15 +56,17 @@ class AnimatedSeries {
 
   factory AnimatedSeries.custom({
     @required AnimatableBuilder builder,
-    @required ChartBounds boundsFrom,
-    @required ChartBounds boundsTo,
+    @required ChartBoundsDoubled boundsFrom,
+    @required ChartBoundsDoubled boundsTo,
     @required ChartSeries seriesFrom,
     @required ChartSeries seroesTo,
+    @required ChartMapper mapper,
   }) {
-    final fromOffsets =
-        seriesFrom.entities.map((e) => e.toRelativeOffset(boundsFrom)).toList();
+    final fromOffsets = seriesFrom.entities
+        .map((e) => e.toRelativeOffset(mapper, boundsFrom))
+        .toList();
     final toOffsets = seroesTo?.entities
-            ?.map((e) => e.toRelativeOffset(boundsTo))
+            ?.map((e) => e.toRelativeOffset(mapper, boundsTo))
             ?.toList() ??
         [];
     final directIntersactions =
@@ -107,25 +109,30 @@ class AnimatedSeries {
   }
 
   factory AnimatedSeries.tween({
-    @required ChartBounds boundsFrom,
-    @required ChartBounds boundsTo,
+    @required ChartBoundsDoubled boundsFrom,
+    @required ChartBoundsDoubled boundsTo,
     @required ChartSeries seriesFrom,
     @required ChartSeries seriesTo,
+    @required ChartMapper mapper,
   }) {
     return AnimatedSeries.custom(
-        builder: (a, b) => Tween(begin: a, end: b),
-        boundsFrom: boundsFrom,
-        boundsTo: boundsTo,
-        seriesFrom: seriesFrom,
-        seroesTo: seriesTo);
+      builder: (a, b) => Tween(begin: a, end: b),
+      boundsFrom: boundsFrom,
+      boundsTo: boundsTo,
+      seriesFrom: seriesFrom,
+      seroesTo: seriesTo,
+      mapper: mapper,
+    );
   }
 
-  factory AnimatedSeries.curve(
-      {@required ChartBounds boundsFrom,
-      @required ChartBounds boundsTo,
-      @required ChartSeries seriesFrom,
-      @required ChartSeries seriesTo,
-      Curve curve = Curves.easeInOut}) {
+  factory AnimatedSeries.curve({
+    @required ChartBoundsDoubled boundsFrom,
+    @required ChartBoundsDoubled boundsTo,
+    @required ChartSeries seriesFrom,
+    @required ChartSeries seriesTo,
+    @required ChartMapper mapper,
+    Curve curve = Curves.easeInOut,
+  }) {
     return AnimatedSeries.custom(
       builder: (a, b) => Tween(begin: a, end: b).chain(
         CurveTween(curve: curve),
@@ -134,14 +141,16 @@ class AnimatedSeries {
       boundsTo: boundsTo,
       seriesFrom: seriesFrom,
       seroesTo: seriesTo,
+      mapper: mapper,
     );
   }
 
   factory AnimatedSeries.leftCornerInOut({
-    @required ChartBounds boundsFrom,
-    @required ChartBounds boundsTo,
+    @required ChartBoundsDoubled boundsFrom,
+    @required ChartBoundsDoubled boundsTo,
     @required ChartSeries seriesFrom,
     @required ChartSeries seriesTo,
+    @required ChartMapper mapper,
     Curve curve = Curves.easeInOut,
   }) {
     return AnimatedSeries.custom(
@@ -161,6 +170,7 @@ class AnimatedSeries {
       boundsTo: boundsTo,
       seriesFrom: seriesFrom,
       seroesTo: seriesTo,
+      mapper: mapper,
     );
   }
 

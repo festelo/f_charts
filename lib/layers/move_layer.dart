@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:f_charts/chart_animations/animated_series.dart';
-import 'package:f_charts/chart_models/theme.dart';
-import 'package:f_charts/data_models/base.dart';
+import 'package:f_charts/widget_models/_.dart';
+import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'layer.dart';
 
 typedef AnimatedSeriesBuilder = AnimatedSeries Function(
-  ChartBounds boundsFrom,
-  ChartBounds boundsTo,
+  ChartBoundsDoubled boundsFrom,
+  ChartBoundsDoubled boundsTo,
   ChartSeries seriesFrom,
   ChartSeries seriesTo,
 );
@@ -29,7 +29,8 @@ class MoveAnimation {
 
   factory MoveAnimation.between(
     ChartData from,
-    ChartData to, {
+    ChartData to,
+    ChartMapper mapper, {
     AnimatedSeriesBuilder animatedSeriesBuilder,
   }) {
     animatedSeriesBuilder ??=
@@ -38,10 +39,11 @@ class MoveAnimation {
               boundsTo: boundsTo,
               seriesFrom: seriesFrom,
               seriesTo: seriesTo,
+              mapper: mapper,
             );
 
-    final boundsFrom = from.getBounds();
-    final boundsTo = to.getBounds();
+    final boundsFrom = ChartBoundsDoubled.fromData(from, mapper);
+    final boundsTo = ChartBoundsDoubled.fromData(to, mapper);
     final mappedFrom =
         Map.fromEntries(from.series.map((c) => MapEntry(c.name, c)));
     final mappedTo = Map.fromEntries(to.series.map((c) => MapEntry(c.name, c)));

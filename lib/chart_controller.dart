@@ -1,4 +1,4 @@
-import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,10 +11,11 @@ class ChartController implements Listenable {
   final ObserverList<VoidCallback> _listeners = ObserverList<VoidCallback>();
   final ChartState state;
   final ChartTheme theme;
+  final ChartMapper mapper;
 
   final PointPressedCallback pointPressed;
 
-  ChartController(this.theme, TickerProvider vsync,
+  ChartController(this.theme, this.mapper, TickerProvider vsync,
       {ChartState state = null, this.pointPressed})
       : state = state ?? ChartState(),
         moveAnimationController = AnimationController(
@@ -37,11 +38,12 @@ class ChartController implements Listenable {
   AnimationController moveAnimationController;
 
   void initLayers(ChartData data) {
-    _baseLayer = ChartDrawBaseLayer.calculate(data, theme, state);
+    _baseLayer = ChartDrawBaseLayer.calculate(data, theme, state, mapper);
     _interactionLayer = ChartInteractionLayer.calculate(
       data,
       theme,
       state,
+      mapper,
       pointPressed: pointPressed,
     );
     _decorationLayer = ChartDecorationLayer.calculate(data, theme);
@@ -54,7 +56,7 @@ class ChartController implements Listenable {
 
   Future<void> move(ChartData from, ChartData to) async {
     state.isMoving = true;
-    final moveAnimation = MoveAnimation.between(from, to);
+    final moveAnimation = MoveAnimation.between(from, to, mapper);
     _moveLayer = ChartMoveLayer(
       animation: moveAnimation,
       parent: moveAnimationController,

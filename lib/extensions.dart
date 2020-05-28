@@ -13,6 +13,7 @@ extension OffsetExtenstions on Offset {
     return Point(this.dx, this.dy);
   }
 }
+
 extension RelativeOffsetExtenstions on RelativeOffset {
   Point toRelativePoint() {
     return Point(this.dx, this.dy);
@@ -32,29 +33,19 @@ extension PointPairExtenstions on Pair<Point> {
   num get y2 => this.b.y;
 }
 
-extension ChartBoundsExtensions<T1, T2> on ChartBounds<T1, T2> {
-  double get maxOrdinateStep {
-    return this.maxOrdinate.stepValue(this.minOrdinate.value);
-  }
-
-  double get maxAbscissaStep {
-    return this.maxAbscissa.stepValue(this.minAbscissa.value);
-  }
-
-  Size toSize() {
-    return Size(this.maxAbscissaStep, this.maxOrdinateStep);
-  }
-}
-
-extension ChartSeriesExtensions<T1, T2>
-    on ChartEntity<T1, T2> {
-      
-  RelativeOffset toRelativeOffset(ChartBounds<T1, T2> bounds) {
+extension ChartEntityExtensions<T1, T2> on ChartEntity<T1, T2> {
+  RelativeOffset toRelativeOffset(
+      ChartMapper<T1, T2> mapper, ChartBoundsDoubled bounds) {
+    var abscissaVal =
+        mapper.abscissaMapper.toDouble(this.abscissa) - bounds.minAbscissa;
+    var ordinateVal =
+        mapper.ordinateMapper.toDouble(this.ordinate) - bounds.minOrdinate;
     return RelativeOffset.withViewport(
-            this.abscissa.stepValue(bounds.minAbscissa.value),
-            this.ordinate.stepValue(bounds.minOrdinate.value),
-            bounds.toSize())
-        .reverseY();
+      abscissaVal,
+      ordinateVal,
+      Size(bounds.maxAbscissa - bounds.minAbscissa,
+          bounds.maxOrdinate - bounds.minOrdinate),
+    ).reverseY();
   }
 }
 

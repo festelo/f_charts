@@ -1,4 +1,4 @@
-import 'package:f_charts/chart_models/theme.dart';
+import 'package:f_charts/widget_models/theme.dart';
 import 'package:flutter/material.dart';
 
 abstract class Layer {

@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart_models/_.dart';
+import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 import 'package:f_charts/extensions.dart';
 import 'package:flutter/material.dart';
@@ -25,22 +25,24 @@ class PointsNameLayer extends Layer {
     ChartData data,
     ChartTheme theme,
     ChartState state,
+    ChartMapper mapper,
   ) {
-    final bounds = data.getBounds();
+    final bounds = ChartBoundsDoubled.fromBounds(mapper.getBounds(data), mapper);
     final layer = PointsNameLayer(theme: theme, state: state);
 
     for (final s in data.series) {
-      layer._placeTexts(s, bounds);
+      layer._placeTexts(s, bounds, mapper);
     }
     return layer;
   }
 
   void _placeTexts(
     ChartSeries series,
-    ChartBounds bounds,
+    ChartBoundsDoubled bounds,
+    ChartMapper mapper,
   ) {
     for (final e in series.entities) {
-      final offset = e.toRelativeOffset(bounds);
+      final offset = e.toRelativeOffset(mapper, bounds);
       placeText(offset, offset.toString(), Colors.red);
     }
   }
