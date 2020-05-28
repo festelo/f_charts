@@ -27,13 +27,14 @@ class IntersactionInfo<T1, T2> {
   });
 }
 
-class ChartInteractionLayer<T1, T2>
-    extends Layer {
+class ChartInteractionLayer<T1, T2> extends Layer {
   double xPositionAbs;
   final ChartTheme theme;
   final Map<ChartSeries<T1, T2>, List<RelativeLine>> seriesLines;
   final Map<ChartEntity<T1, T2>, RelativePoint> entityPoints;
   final ChartState state;
+  final ChartMapper<T1, T2> mapper;
+  final ChartBoundsDoubled bounds;
 
   final void Function(ChartEntity<T1, T2> e) pointPressed;
 
@@ -63,6 +64,8 @@ class ChartInteractionLayer<T1, T2>
   ChartInteractionLayer({
     @required this.theme,
     @required this.state,
+    @required this.mapper,
+    @required this.bounds,
     this.pointPressed,
     Map<ChartSeries<T1, T2>, List<RelativeLine>> seriesLines,
     Map<ChartEntity<T1, T2>, RelativePoint> entityPoints,
@@ -79,7 +82,12 @@ class ChartInteractionLayer<T1, T2>
   }) {
     final bounds = ChartBoundsDoubled.fromData(data, mapper);
     final layer = ChartInteractionLayer<T1, T2>(
-        theme: theme, pointPressed: pointPressed, state: state);
+      theme: theme,
+      pointPressed: pointPressed,
+      mapper: mapper,
+      bounds: bounds,
+      state: state,
+    );
 
     for (final s in data.series) {
       layer._placeSeries(s, bounds, mapper);
@@ -156,9 +164,10 @@ class ChartInteractionLayer<T1, T2>
       );
       if (intersaction != null) {
         drawInterscationHighlight(canvas, size, series, intersaction);
-        drawIntersactionZeroMarker(canvas, size, series, intersaction);
+        drawYPointerMarkers(canvas, size, series, intersaction);
       }
     }
+    drawXPointerMarker(canvas, size);
     if (theme.xPointer != null) _drawXPointerLine(canvas, size);
   }
 
@@ -178,7 +187,7 @@ class ChartInteractionLayer<T1, T2>
     double xPosition,
   ) {
     for (var i = 1; i < series.entities.length; i++) {
-      final a = series.entities[i-1];
+      final a = series.entities[i - 1];
       final b = series.entities[i];
       final line = retrieveAbsoluteLine(a, b);
       final xHighlightLine = Pair(
@@ -194,52 +203,52 @@ class ChartInteractionLayer<T1, T2>
         var deltaB = (xPosition - line.b.dx).abs();
         var nearestDelta = min(deltaA, deltaB);
         return IntersactionInfo(
-          line: line, 
-          offset: Offset(cross.x.toDouble(), cross.y.toDouble()), 
-          entities: Pair(series.entities[i-1], series.entities[i]), 
-          nearestEntity: nearestDelta == deltaA ? a : b,
-          deltaToNearest: nearestDelta
-        );
+            line: line,
+            offset: Offset(cross.x.toDouble(), cross.y.toDouble()),
+            entities: Pair(series.entities[i - 1], series.entities[i]),
+            nearestEntity: nearestDelta == deltaA ? a : b,
+            deltaToNearest: nearestDelta);
       }
     }
-    
+
     var first = series.entities[0];
     var firstPoint = retrieveAbsolutePoint(first);
     var deltaFirst = (xPosition - firstPoint.dx).abs();
     if (deltaFirst < 10) {
       return IntersactionInfo(
-        line: retrieveAbsoluteLine(first, series.entities[1]),
-        offset: firstPoint,
-        entities: Pair(first, series.entities[1]),
-        deltaToNearest: deltaFirst,
-        nearestEntity: first
-      );
+          line: retrieveAbsoluteLine(first, series.entities[1]),
+          offset: firstPoint,
+          entities: Pair(first, series.entities[1]),
+          deltaToNearest: deltaFirst,
+          nearestEntity: first);
     }
 
-    var last = series.entities[series.entities.length-1];
+    var last = series.entities[series.entities.length - 1];
     var lastPoint = retrieveAbsolutePoint(last);
     var deltaLast = (xPosition - lastPoint.dx).abs();
     if (deltaLast < 10) {
       return IntersactionInfo(
-        line: retrieveAbsoluteLine(series.entities[series.entities.length-2], last),
-        offset: lastPoint,
-        entities: Pair(series.entities[series.entities.length-2], last),
-        deltaToNearest: deltaLast,
-        nearestEntity: last
-      );
+          line: retrieveAbsoluteLine(
+              series.entities[series.entities.length - 2], last),
+          offset: lastPoint,
+          entities: Pair(series.entities[series.entities.length - 2], last),
+          deltaToNearest: deltaLast,
+          nearestEntity: last);
     }
     return null;
   }
 
-  void _drawZeroMarker(Canvas canvas, Size size, Offset cross, Color color, String text, {bool inactive = false}) {
+  void _drawYMarker(
+      Canvas canvas, Size size, Offset cross, Color color, String text,
+      {bool inactive = false}) {
     var linePaint = Paint()
       ..strokeWidth = 1
       ..shader = LinearGradient(
         colors: [
-          color.withOpacity(0), 
+          color.withOpacity(0),
           color,
           color,
-          color.withOpacity(0), 
+          color.withOpacity(0),
         ],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -249,11 +258,8 @@ class ChartInteractionLayer<T1, T2>
       Offset(0, cross.dy + 10),
       linePaint,
     );
-    final textStyle = TextStyle(
-      color: color,
-      fontSize: 16,
-      fontWeight: FontWeight.bold
-    );
+    final textStyle =
+        TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold);
     final textSpan = TextSpan(
       text: text,
       style: textStyle,
@@ -266,7 +272,7 @@ class ChartInteractionLayer<T1, T2>
       minWidth: 0,
       maxWidth: size.width,
     );
-    textPainter.paint(canvas, Offset(-5 - textPainter.width, cross.dy - 12));
+    textPainter.paint(canvas, Offset(-5 - textPainter.width, cross.dy - textPainter.height / 2));
   }
 
   void _drawPointHighlight(Canvas canvas, Offset cross, Color color) {
@@ -282,7 +288,7 @@ class ChartInteractionLayer<T1, T2>
     );
   }
 
-  void drawIntersactionZeroMarker(
+  void drawYPointerMarkers(
     Canvas canvas,
     Size size,
     ChartSeries series,
@@ -292,11 +298,50 @@ class ChartInteractionLayer<T1, T2>
     final entity = intersactionInfo.nearestEntity;
     final entityPoint = retrieveAbsolutePoint(entity);
     if (intersactionInfo.deltaToNearest < 10) {
-      _drawZeroMarker(canvas, size, entityPoint, series.color, entity.ordinate.toString());
+      _drawYMarker(
+          canvas, size, entityPoint, series.color, entity.ordinate.toString());
       _drawPointHighlight(canvas, entityPoint, series.color);
     } else {
-      _drawZeroMarker(canvas, size, cross, Color.alphaBlend(series.color.withOpacity(0.4), Colors.grey), '?');
+      var chartPoint = bounds.minOrdinate +
+          (1 - cross.dy / size.height) *
+              (bounds.maxOrdinate - bounds.minOrdinate);
+      var entity = mapper.ordinateMapper.fromDouble(chartPoint);
+      var str = mapper.ordinateMapper.getString(entity);
+
+      _drawYMarker(canvas, size, cross,
+          Color.alphaBlend(series.color.withOpacity(0.4), Colors.grey), str);
     }
+  }
+
+  void _drawXMarker(Canvas canvas, Size size, double xPos, Color color, String text) {
+    final textStyle =
+        TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold);
+    final textSpan = TextSpan(
+      text: text,
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(
+      minWidth: 0,
+      maxWidth: size.width,
+    );
+    textPainter.paint(canvas, Offset(xPos - textPainter.width / 2, size.height));
+  }
+
+  void drawXPointerMarker(
+    Canvas canvas,
+    Size size,
+  ) {
+      var chartPoint = bounds.minAbscissa +
+          (xPositionAbs / size.width) *
+              (bounds.maxAbscissa - bounds.minAbscissa);
+      var entity = mapper.abscissaMapper.fromDouble(chartPoint);
+      var str = mapper.abscissaMapper.getString(entity);
+
+    _drawXMarker(canvas, size, xPositionAbs, Colors.grey, str);
   }
 
   void drawInterscationHighlight(
@@ -313,28 +358,30 @@ class ChartInteractionLayer<T1, T2>
       Pair(line.a.toPoint(), cross),
       20,
     );
-    var partLeft = Offset(partPointLeft.x.toDouble(), partPointLeft.y.toDouble());
+    var partLeft =
+        Offset(partPointLeft.x.toDouble(), partPointLeft.y.toDouble());
     var partPointRight = partOf(
       Pair(line.b.toPoint(), cross),
       20,
     );
-    var partRight = Offset(partPointRight.x.toDouble(), partPointRight.y.toDouble());
-    
+    var partRight =
+        Offset(partPointRight.x.toDouble(), partPointRight.y.toDouble());
+
     var paint = Paint()
       ..strokeWidth = 3
       ..shader = LinearGradient(
         colors: [
-          Colors.grey.withOpacity(0), 
+          Colors.grey.withOpacity(0),
           Colors.grey,
-          Colors.grey.withOpacity(0), 
+          Colors.grey.withOpacity(0),
         ],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-      ).createShader(partLeft & 
-        Size(
-          partRight.dx - partLeft.dx,
-          partRight.dy - partLeft.dy,
-        ));
+      ).createShader(partLeft &
+          Size(
+            partRight.dx - partLeft.dx,
+            partRight.dy - partLeft.dy,
+          ));
 
     canvas.drawLine(
       partLeft,
