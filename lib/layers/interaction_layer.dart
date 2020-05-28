@@ -154,7 +154,7 @@ class ChartInteractionLayer<T1, T2> extends Layer {
 
   @override
   void draw(Canvas canvas, Size size) {
-    if (xPositionAbs == null) return;
+    if (xPositionAbs == null || xPositionAbs < 0 || xPositionAbs > size.width) return;
     recalculateCache(size);
     for (final series in seriesLines.keys) {
       final intersaction = getIntersactionWithSeries(
@@ -254,8 +254,8 @@ class ChartInteractionLayer<T1, T2> extends Layer {
         end: Alignment.bottomCenter,
       ).createShader(Offset(cross.dx, cross.dy - 10) & Size(1, 20));
     canvas.drawLine(
-      Offset(0, cross.dy - 10),
-      Offset(0, cross.dy + 10),
+      Offset(0, max(cross.dy - 10, 0)),
+      Offset(0, min(cross.dy + 10, size.height)),
       linePaint,
     );
     final textStyle =
