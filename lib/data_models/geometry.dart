@@ -1,8 +1,31 @@
 import 'dart:ui';
 
+import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:quiver_hashcode/hashcode.dart';
+
+class CombinedOffset {
+  double relativeX = 0;
+  double relativeY = 0;
+  double absoluteX = 0;
+  double absoluteY = 0;
+  CombinedOffset();
+
+  RelativeOffset toRelative(Size viewportSize) {
+    return RelativeOffset.fromOffset(
+      toAbsolute(viewportSize),
+      viewportSize,
+    );
+  }
+
+  Offset toAbsolute(Size viewportSize) {
+    return Offset(
+      absoluteX + relativeX * viewportSize.width,
+      absoluteY + relativeY * viewportSize.height,
+    );
+  }
+}
 
 class RelativeOffset {
   double dx;
@@ -119,4 +142,10 @@ class RelativeText {
   final RelativeOffset offset;
   final TextPainter painter;
   RelativeText(this.offset, this.painter);
+}
+
+class CombinedText {
+  final CombinedOffset offset;
+  final TextPainter painter;
+  CombinedText(this.offset, this.painter);
 }

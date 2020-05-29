@@ -94,8 +94,9 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Center(
         child: Chart(
-          theme: ChartTheme().copyWith(yMarkersCount: 6),
+          theme: ChartTheme(),
           mapper: ChartMapper(IntMapper(), IntMapper()),
+          markersPointer: ChartMarkersPointer(IntMarkersPointer(1), IntMarkersPointer(2)),
           chartData: data[dataNum],
           pointPressed: (_) =>
               setState(() => dataNum = (dataNum + 1) % data.length),

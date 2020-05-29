@@ -12,10 +12,12 @@ class ChartController implements Listenable {
   final ChartState state;
   final ChartTheme theme;
   final ChartMapper mapper;
+  final ChartMarkersPointer markersPointer;
 
   final PointPressedCallback pointPressed;
 
-  ChartController(this.theme, this.mapper, TickerProvider vsync,
+  ChartController(
+      this.theme, this.mapper, this.markersPointer, TickerProvider vsync,
       {ChartState state = null, this.pointPressed})
       : state = state ?? ChartState(),
         moveAnimationController = AnimationController(
@@ -46,7 +48,12 @@ class ChartController implements Listenable {
       mapper,
       pointPressed: pointPressed,
     );
-    _decorationLayer = ChartDecorationLayer.calculate(data, theme);
+    _decorationLayer = ChartDecorationLayer.calculate(
+      data: data,
+      theme: theme,
+      markersPointer: markersPointer,
+      mapper: mapper,
+    );
   }
 
   void setXPosition(double value) {

@@ -1,28 +1,40 @@
 import 'dart:ui';
 
+import 'package:f_charts/chart.dart';
 import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'layer.dart';
 
 class ChartDecorationLayer extends Layer {
-  final List<RelativeLine> yAxisMarkers;
+  final List<RelativeLine> axisMarkers;
+  final List<CombinedText> axisTextMarkers;
   RelativeLine _xAxisLine;
   RelativeLine _yAxisLine;
 
   final ChartTheme theme;
 
   ChartDecorationLayer({
-    List<RelativeLine> yAxisMarkers,
-    this.theme,
+    List<RelativeLine> axisMarkers,
+    List<CombinedText> axisTextMarkers,
+    @required this.theme,
   })  : assert(theme != null),
-        yAxisMarkers = yAxisMarkers ?? [];
+        axisMarkers = axisMarkers ?? [],
+        axisTextMarkers = axisTextMarkers ?? [];
 
-  factory ChartDecorationLayer.calculate(ChartData data, ChartTheme theme) {
+  factory ChartDecorationLayer.calculate({
+    @required ChartData data,
+    @required ChartTheme theme,
+    @required ChartMarkersPointer markersPointer,
+    @required ChartMapper mapper,
+  }) {
     final layer = ChartDecorationLayer(theme: theme);
     layer.placeXAxisLine();
     layer.placeYAxisLine();
-    layer.placeYMarkers();
+    final bounds = mapper.getBounds(data);
+    layer.placeYMarkers(bounds, mapper, markersPointer);
+    layer.placeXMarkers(bounds, mapper, markersPointer);
     return layer;
   }
 
@@ -52,33 +64,101 @@ class ChartDecorationLayer extends Layer {
     }
   }
 
-  void placeYMarkers() {
-    if (theme.yMarker == null || theme.yMarkersCount == 0) {
-      yAxisMarkers.clear();
-    } else {
-      var viewportSize = Size(1, theme.yMarkersCount.toDouble());
-      for (var i = 0.0; i < theme.yMarkersCount; i++) {
-        yAxisMarkers.add(RelativeLine(
-          RelativeOffset.withViewport(0, i, viewportSize),
-          RelativeOffset.withViewport(1, i, viewportSize),
-          color: theme.yMarker.color,
-          width: theme.yMarker.width,
+  void placeYMarkers(
+    ChartBounds bounds,
+    ChartMapper mapper,
+    ChartMarkersPointer markersPointer,
+  ) {
+    if (theme.yMarkers == null) {
+      return;
+    }
+    final points = markersPointer.ordinate
+        .getPoints(bounds.minOrdinate, bounds.maxOrdinate);
+    final min = mapper.ordinateMapper.toDouble(bounds.minOrdinate);
+    final max = mapper.ordinateMapper.toDouble(bounds.maxOrdinate);
+    for (final p in points) {
+      final i = 1 - (mapper.ordinateMapper.toDouble(p) - min) / max;
+      if (theme.yMarkers.line != null)
+        axisMarkers.add(RelativeLine(
+          RelativeOffset(0, i),
+          RelativeOffset(1, i),
+          color: theme.yMarkers.line.color,
+          width: theme.yMarkers.line.width,
         ));
+      if (theme.yMarkers.text != null) {
+        var painter = TextPainter(
+          textDirection: TextDirection.ltr,
+          text: TextSpan(
+            style: theme.yMarkers.text,
+            text: mapper.ordinateMapper.getString(p),
+          ),
+        )..layout();
+        axisTextMarkers.add(
+          CombinedText(
+            CombinedOffset()
+              ..absoluteX = -painter.width - 5
+              ..relativeY = i
+              ..absoluteY = -painter.height / 2,
+            painter,
+          ),
+        );
+      }
+    }
+  }
+
+  void placeXMarkers(
+    ChartBounds bounds,
+    ChartMapper mapper,
+    ChartMarkersPointer markersPointer,
+  ) {
+    if (theme.xMarkers == null) {
+      return;
+    }
+    final points = markersPointer.abscissa
+        .getPoints(bounds.minAbscissa, bounds.maxAbscissa);
+    final min = mapper.abscissaMapper.toDouble(bounds.minAbscissa);
+    final max = mapper.abscissaMapper.toDouble(bounds.maxAbscissa);
+    for (final p in points) {
+      final i = (mapper.abscissaMapper.toDouble(p) - min) / max;
+      if (theme.xMarkers.line != null)
+        axisMarkers.add(RelativeLine(
+          RelativeOffset(i, 0),
+          RelativeOffset(i, 1),
+          color: theme.xMarkers.line.color,
+          width: theme.xMarkers.line.width,
+        ));
+      if (theme.xMarkers.text != null) {
+        var painter = TextPainter(
+          textDirection: TextDirection.ltr,
+          text: TextSpan(
+            style: theme.xMarkers.text,
+            text: mapper.abscissaMapper.getString(p),
+          ),
+        )..layout();
+        axisTextMarkers.add(
+          CombinedText(
+            CombinedOffset()
+              ..relativeY = 1
+              ..relativeX = i
+              ..absoluteX = -painter.width / 2,
+            painter,
+          ),
+        );
       }
     }
   }
 
   @override
   bool themeChangeAffected(ChartTheme theme) {
-    return theme.yMarker != this.theme.yMarker ||
-        theme.yMarkersCount != this.theme.yMarkersCount ||
+    return theme.xMarkers != this.theme.xMarkers ||
+        theme.yMarkers != this.theme.yMarkers ||
         theme.xAxis != this.theme.xAxis ||
         theme.yAxis != this.theme.yAxis;
   }
 
   @override
   void draw(Canvas canvas, Size size) {
-    for (final l in yAxisMarkers) {
+    for (final l in axisMarkers) {
       canvas.drawLine(
         l.a.toOffset(size),
         l.b.toOffset(size),
@@ -86,6 +166,10 @@ class ChartDecorationLayer extends Layer {
           ..color = l.color
           ..strokeWidth = l.width,
       );
+    }
+
+    for (final t in axisTextMarkers) {
+      t.painter.paint(canvas, t.offset.toAbsolute(size));
     }
 
     if (_xAxisLine != null) {

@@ -10,6 +10,7 @@ import 'chart_controller.dart';
 class Chart<T1, T2> extends StatefulWidget {
   final ChartData<T1, T2> chartData;
   final ChartMapper<T1, T2> mapper;
+  final ChartMarkersPointer<T1, T2> markersPointer;
   final PointPressedCallback pointPressed;
   final ChartTheme theme;
 
@@ -18,7 +19,9 @@ class Chart<T1, T2> extends StatefulWidget {
     @required this.mapper,
     this.theme = const ChartTheme(),
     this.pointPressed,
-  });
+    this.markersPointer,
+  }) : assert((theme.yMarkers != null || theme.xMarkers != null) &&
+            markersPointer != null);
   @override
   _ChartState createState() => _ChartState();
 }
@@ -63,6 +66,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     chartController = ChartController(
       widget.theme,
       widget.mapper,
+      widget.markersPointer,
       this,
       pointPressed: widget.pointPressed,
     );
