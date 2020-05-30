@@ -12,6 +12,14 @@ import 'layer.dart';
 
 typedef PointPressedCallback<T1, T2> = Function(ChartEntity<T1, T2> entity);
 
+const MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT = 60.0;
+const MARKER_Y_HIGHLIGHT_BACKGROUND_WIDTH = 20.0;
+const MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR = Colors.white;
+
+const MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT = 20.0;
+const MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH = 60.0;
+const MARKER_X_HIGHLIGHT_BACKGROUND_COLOR = Colors.white;
+
 class IntersactionInfo<T1, T2> {
   final Pair<Offset> line;
   final Offset offset;
@@ -154,7 +162,8 @@ class ChartInteractionLayer<T1, T2> extends Layer {
 
   @override
   void draw(Canvas canvas, Size size) {
-    if (xPositionAbs == null || xPositionAbs < 0 || xPositionAbs > size.width) return;
+    if (xPositionAbs == null || xPositionAbs < 0 || xPositionAbs > size.width)
+      return;
     recalculateCache(size);
     for (final series in seriesLines.keys) {
       final intersaction = getIntersactionWithSeries(
@@ -241,6 +250,18 @@ class ChartInteractionLayer<T1, T2> extends Layer {
   void _drawYMarker(
       Canvas canvas, Size size, Offset cross, Color color, String text,
       {bool inactive = false}) {
+    var backgroundPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR.withOpacity(0),
+          MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR,
+          MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR,
+          MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR.withOpacity(0),
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Offset(cross.dx, cross.dy - MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2) & Size(MARKER_Y_HIGHLIGHT_BACKGROUND_WIDTH, MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT));
+
     var linePaint = Paint()
       ..strokeWidth = 1
       ..shader = LinearGradient(
@@ -253,6 +274,10 @@ class ChartInteractionLayer<T1, T2> extends Layer {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ).createShader(Offset(cross.dx, cross.dy - 10) & Size(1, 20));
+    canvas.drawRect(
+      Rect.fromLTRB(-MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT, cross.dy - MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2, -2, cross.dy + MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2),
+      backgroundPaint,
+    );
     canvas.drawLine(
       Offset(0, max(cross.dy - 10, 0)),
       Offset(0, min(cross.dy + 10, size.height)),
@@ -272,7 +297,8 @@ class ChartInteractionLayer<T1, T2> extends Layer {
       minWidth: 0,
       maxWidth: size.width,
     );
-    textPainter.paint(canvas, Offset(-5 - textPainter.width, cross.dy - textPainter.height / 2));
+    textPainter.paint(canvas,
+        Offset(-5 - textPainter.width, cross.dy - textPainter.height / 2));
   }
 
   void _drawPointHighlight(Canvas canvas, Offset cross, Color color) {
@@ -313,7 +339,25 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     }
   }
 
-  void _drawXMarker(Canvas canvas, Size size, double xPos, Color color, String text) {
+  void _drawXMarker(
+      Canvas canvas, Size size, double xPos, Color color, String text) {
+    var backgroundPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          MARKER_X_HIGHLIGHT_BACKGROUND_COLOR.withOpacity(0),
+          MARKER_X_HIGHLIGHT_BACKGROUND_COLOR,
+          MARKER_X_HIGHLIGHT_BACKGROUND_COLOR,
+          MARKER_X_HIGHLIGHT_BACKGROUND_COLOR.withOpacity(0),
+        ],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ).createShader(Offset(xPos - MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2, size.height) & Size(MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH, MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT));
+
+    canvas.drawRect(
+      Rect.fromLTRB(xPos - MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2, size.height, xPos + MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2, size.height + MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT),
+      backgroundPaint,
+    );
+    
     final textStyle =
         TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold);
     final textSpan = TextSpan(
@@ -328,18 +372,18 @@ class ChartInteractionLayer<T1, T2> extends Layer {
       minWidth: 0,
       maxWidth: size.width,
     );
-    textPainter.paint(canvas, Offset(xPos - textPainter.width / 2, size.height));
+    textPainter.paint(
+        canvas, Offset(xPos - textPainter.width / 2, size.height));
   }
 
   void drawXPointerMarker(
     Canvas canvas,
     Size size,
   ) {
-      var chartPoint = bounds.minAbscissa +
-          (xPositionAbs / size.width) *
-              (bounds.maxAbscissa - bounds.minAbscissa);
-      var entity = mapper.abscissaMapper.fromDouble(chartPoint);
-      var str = mapper.abscissaMapper.getString(entity);
+    var chartPoint = bounds.minAbscissa +
+        (xPositionAbs / size.width) * (bounds.maxAbscissa - bounds.minAbscissa);
+    var entity = mapper.abscissaMapper.fromDouble(chartPoint);
+    var str = mapper.abscissaMapper.getString(entity);
 
     _drawXMarker(canvas, size, xPositionAbs, Colors.grey, str);
   }
