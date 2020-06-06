@@ -163,9 +163,9 @@ class ChartInteractionLayer<T1, T2> extends Layer {
 
   @override
   void draw(Canvas canvas, Size size) {
+    recalculateCache(size);
     if (xPositionAbs == null || xPositionAbs < 0 || xPositionAbs > size.width)
       return;
-    recalculateCache(size);
     for (final series in seriesLines.keys) {
       final intersaction = getIntersactionWithSeries(
         series,

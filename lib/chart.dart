@@ -106,7 +106,13 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
           foregroundPainter: ChartPaint(layers: chartController.layers),
           child: GestureDetector(
             onHorizontalDragDown: (d) {
-              chartController.setXPosition(d.localPosition.dx);
+              var interacted = false;
+              for (final l in chartController.layers) {
+                if (l.hitTest(d.localPosition)) 
+                  interacted = true;
+              }
+              if (!interacted)
+                chartController.setXPosition(d.localPosition.dx);
             },
             onHorizontalDragEnd: (d) {
               chartController.setXPosition(null);
