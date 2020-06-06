@@ -78,6 +78,7 @@ class AnimatedSeries {
 
     final allIntersactionsReversed = allIntersactions.reverse();
 
+    if(allIntersactions.isNotEmpty)
     for (var key in fromOffsets) {
       if (allIntersactions[key] != null) continue;
       allIntersactions[key] = allIntersactions.values.reduce(
@@ -88,6 +89,7 @@ class AnimatedSeries {
     final pairs =
         allIntersactions.entries.map((e) => Pair(e.key, e.value)).toList();
 
+    if(allIntersactionsReversed.isNotEmpty)
     for (var key in toOffsets) {
       if (allIntersactionsReversed[key] != null) continue;
       var nKey = allIntersactions.keys.reduce(
