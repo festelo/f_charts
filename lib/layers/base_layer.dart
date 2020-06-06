@@ -8,15 +8,15 @@ import 'package:flutter/material.dart';
 import 'layer.dart';
 
 class ChartDrawBaseLayer extends Layer {
-  final List<RelativePoint> points;
-  final List<RelativeLine> lines;
+  final List<ChartPoint> points;
+  final List<ChartLine> lines;
   final ChartState state;
 
   final ChartTheme theme;
 
   ChartDrawBaseLayer({
-    List<RelativePoint> points,
-    List<RelativeLine> lines,
+    List<ChartPoint> points,
+    List<ChartLine> lines,
     @required this.theme,
     @required this.state,
   })  : assert(theme != null),
@@ -59,7 +59,7 @@ class ChartDrawBaseLayer extends Layer {
 
   void placePoint(RelativeOffset o, Color color) {
     if (theme.point == null) return;
-    points.add(RelativePoint(
+    points.add(ChartPoint(
       o,
       color: color ?? theme.point.color,
       radius: theme.point.radius,
@@ -68,7 +68,7 @@ class ChartDrawBaseLayer extends Layer {
 
   void placeLine(RelativeOffset a, RelativeOffset b, Color color) {
     if (theme.line == null) return;
-    lines.add(RelativeLine(a, b,
+    lines.add(ChartLine(a, b,
         color: color ?? theme.line.color, width: theme.line.width));
   }
 
@@ -84,8 +84,8 @@ class ChartDrawBaseLayer extends Layer {
   void draw(Canvas canvas, Size size) {
     for (final l in lines) {
       canvas.drawLine(
-        l.a.toOffset(size),
-        l.b.toOffset(size),
+        l.a.toAbsolute(size),
+        l.b.toAbsolute(size),
         Paint()
           ..color = l.color
           ..strokeWidth = l.width,
@@ -94,7 +94,7 @@ class ChartDrawBaseLayer extends Layer {
 
     for (final p in points) {
       canvas.drawCircle(
-        p.offset.toOffset(size),
+        p.offset.toAbsolute(size),
         theme.point.radius,
         Paint()..color = p.color,
       );

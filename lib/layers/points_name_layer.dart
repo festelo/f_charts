@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import 'layer.dart';
 
 class PointsNameLayer extends Layer {
-  final List<RelativeText> pointTexts;
+  final List<ChartText> pointTexts;
 
   final ChartTheme theme;
   final ChartState state;
 
   PointsNameLayer({
-    List<RelativeText> pointTexts,
-    List<RelativeLine> lines,
+    List<ChartText> pointTexts,
+    List<ChartLine> lines,
     @required this.theme,
     @required this.state,
   })  : assert(theme != null),
@@ -57,7 +57,7 @@ class PointsNameLayer extends Layer {
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
-    pointTexts.add(RelativeText(a, textPainter));
+    pointTexts.add(ChartText(a, textPainter));
   }
 
   @override
@@ -71,7 +71,7 @@ class PointsNameLayer extends Layer {
   @override
   void draw(Canvas canvas, Size size) {
     for (final t in pointTexts) {
-      t.painter.paint(canvas, t.offset.toOffset(size));
+      t.painter.paint(canvas, t.offset.toAbsolute(size));
     }
   }
 }

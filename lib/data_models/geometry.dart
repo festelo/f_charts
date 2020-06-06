@@ -1,11 +1,14 @@
 import 'dart:ui';
 
-import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:quiver_hashcode/hashcode.dart';
 
-class CombinedOffset {
+abstract class ChartOffset {
+  Offset toAbsolute(Size viewportSize);
+}
+
+class CombinedOffset implements ChartOffset {
   double relativeX = 0;
   double relativeY = 0;
   double absoluteX = 0;
@@ -27,7 +30,7 @@ class CombinedOffset {
   }
 }
 
-class RelativeOffset {
+class RelativeOffset implements ChartOffset {
   double dx;
   double dy;
 
@@ -106,7 +109,7 @@ class RelativeOffset {
 
   RelativeOffset copy() => RelativeOffset(dx, dy);
 
-  Offset toOffset(Size size) {
+  Offset toAbsolute(Size size) {
     final pointX = dx * size.width;
     final pointY = dy * size.height;
     return Offset(pointX, pointY);
@@ -123,29 +126,23 @@ class RelativeOffset {
   String toString() => '(${dx.toStringAsFixed(2)}; ${dy.toStringAsFixed(2)})';
 }
 
-class RelativeLine {
-  final RelativeOffset a;
-  final RelativeOffset b;
+class ChartLine {
+  final ChartOffset a;
+  final ChartOffset b;
   final double width;
   final Color color;
-  RelativeLine(this.a, this.b, {this.width = 1, this.color = Colors.black});
+  ChartLine(this.a, this.b, {this.width = 1, this.color = Colors.black});
 }
 
-class RelativePoint {
-  final RelativeOffset offset;
+class ChartPoint {
+  final ChartOffset offset;
   final double radius;
   final Color color;
-  RelativePoint(this.offset, {this.radius = 5, this.color = Colors.black});
+  ChartPoint(this.offset, {this.radius = 5, this.color = Colors.black});
 }
 
-class RelativeText {
-  final RelativeOffset offset;
+class ChartText {
+  final ChartOffset offset;
   final TextPainter painter;
-  RelativeText(this.offset, this.painter);
-}
-
-class CombinedText {
-  final CombinedOffset offset;
-  final TextPainter painter;
-  CombinedText(this.offset, this.painter);
+  ChartText(this.offset, this.painter);
 }

@@ -81,8 +81,8 @@ class ChartMoveLayer extends Layer {
       if (points.isEmpty) continue;
       Offset b;
       for (var i = 1; i < points.length; i++) {
-        var a = points[i - 1].toOffset(size);
-        b = points[i].toOffset(size);
+        var a = points[i - 1].toAbsolute(size);
+        b = points[i].toAbsolute(size);
         drawLine(canvas, a, b, s.from.color);
       }
     }

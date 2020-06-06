@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart.dart';
 import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,16 +7,16 @@ import 'package:flutter/cupertino.dart';
 import 'layer.dart';
 
 class ChartDecorationLayer extends Layer {
-  final List<RelativeLine> axisMarkers;
-  final List<CombinedText> axisTextMarkers;
-  RelativeLine _xAxisLine;
-  RelativeLine _yAxisLine;
+  final List<ChartLine> axisMarkers;
+  final List<ChartText> axisTextMarkers;
+  ChartLine _xAxisLine;
+  ChartLine _yAxisLine;
 
   final ChartTheme theme;
 
   ChartDecorationLayer({
-    List<RelativeLine> axisMarkers,
-    List<CombinedText> axisTextMarkers,
+    List<ChartLine> axisMarkers,
+    List<ChartText> axisTextMarkers,
     @required this.theme,
   })  : assert(theme != null),
         axisMarkers = axisMarkers ?? [],
@@ -42,7 +41,7 @@ class ChartDecorationLayer extends Layer {
     if (theme.xAxis == null) {
       _xAxisLine = null;
     } else {
-      _xAxisLine = RelativeLine(
+      _xAxisLine = ChartLine(
         RelativeOffset(0, 1),
         RelativeOffset(1, 1),
         color: theme.xAxis.color,
@@ -55,7 +54,7 @@ class ChartDecorationLayer extends Layer {
     if (theme.yAxis == null) {
       _yAxisLine = null;
     } else {
-      _yAxisLine = RelativeLine(
+      _yAxisLine = ChartLine(
         RelativeOffset(0, 0),
         RelativeOffset(0, 1),
         color: theme.yAxis.color,
@@ -79,7 +78,7 @@ class ChartDecorationLayer extends Layer {
     for (final p in points) {
       final i = 1 - (mapper.ordinateMapper.toDouble(p) - min) / max;
       if (theme.yMarkers.line != null)
-        axisMarkers.add(RelativeLine(
+        axisMarkers.add(ChartLine(
           RelativeOffset(0, i),
           RelativeOffset(1, i),
           color: theme.yMarkers.line.color,
@@ -94,7 +93,7 @@ class ChartDecorationLayer extends Layer {
           ),
         )..layout();
         axisTextMarkers.add(
-          CombinedText(
+          ChartText(
             CombinedOffset()
               ..absoluteX = -painter.width - 5
               ..relativeY = i
@@ -121,7 +120,7 @@ class ChartDecorationLayer extends Layer {
     for (final p in points) {
       final i = (mapper.abscissaMapper.toDouble(p) - min) / max;
       if (theme.xMarkers.line != null)
-        axisMarkers.add(RelativeLine(
+        axisMarkers.add(ChartLine(
           RelativeOffset(i, 0),
           RelativeOffset(i, 1),
           color: theme.xMarkers.line.color,
@@ -136,7 +135,7 @@ class ChartDecorationLayer extends Layer {
           ),
         )..layout();
         axisTextMarkers.add(
-          CombinedText(
+          ChartText(
             CombinedOffset()
               ..relativeY = 1
               ..relativeX = i
@@ -160,8 +159,8 @@ class ChartDecorationLayer extends Layer {
   void draw(Canvas canvas, Size size) {
     for (final l in axisMarkers) {
       canvas.drawLine(
-        l.a.toOffset(size),
-        l.b.toOffset(size),
+        l.a.toAbsolute(size),
+        l.b.toAbsolute(size),
         Paint()
           ..color = l.color
           ..strokeWidth = l.width,
@@ -174,8 +173,8 @@ class ChartDecorationLayer extends Layer {
 
     if (_xAxisLine != null) {
       canvas.drawLine(
-        _xAxisLine.a.toOffset(size),
-        _xAxisLine.b.toOffset(size),
+        _xAxisLine.a.toAbsolute(size),
+        _xAxisLine.b.toAbsolute(size),
         Paint()
           ..strokeWidth = _xAxisLine.width
           ..color = _xAxisLine.color,
@@ -184,8 +183,8 @@ class ChartDecorationLayer extends Layer {
 
     if (_yAxisLine != null) {
       canvas.drawLine(
-        _yAxisLine.a.toOffset(size),
-        _yAxisLine.b.toOffset(size),
+        _yAxisLine.a.toAbsolute(size),
+        _yAxisLine.b.toAbsolute(size),
         Paint()
           ..strokeWidth = _yAxisLine.width
           ..color = _yAxisLine.color,

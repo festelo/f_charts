@@ -38,8 +38,8 @@ class IntersactionInfo<T1, T2> {
 class ChartInteractionLayer<T1, T2> extends Layer {
   double xPositionAbs;
   final ChartTheme theme;
-  final Map<ChartSeries<T1, T2>, List<RelativeLine>> seriesLines;
-  final Map<ChartEntity<T1, T2>, RelativePoint> entityPoints;
+  final Map<ChartSeries<T1, T2>, List<ChartLine>> seriesLines;
+  final Map<ChartEntity<T1, T2>, ChartPoint> entityPoints;
   final ChartState state;
   final ChartMapper<T1, T2> mapper;
   final ChartBoundsDoubled bounds;
@@ -55,7 +55,7 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     cachedEntityPointsAbs = entityPoints.map(
       (key, value) => MapEntry(
         key,
-        value.offset.toOffset(size),
+        value.offset.toAbsolute(size),
       ),
     );
     cachedSize = size;
@@ -75,8 +75,8 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     @required this.mapper,
     @required this.bounds,
     this.pointPressed,
-    Map<ChartSeries<T1, T2>, List<RelativeLine>> seriesLines,
-    Map<ChartEntity<T1, T2>, RelativePoint> entityPoints,
+    Map<ChartSeries<T1, T2>, List<ChartLine>> seriesLines,
+    Map<ChartEntity<T1, T2>, ChartPoint> entityPoints,
   })  : assert(theme != null),
         seriesLines = seriesLines ?? {},
         entityPoints = entityPoints ?? {};
@@ -127,12 +127,12 @@ class ChartInteractionLayer<T1, T2> extends Layer {
 
   void placeLine(ChartSeries<T1, T2> s, RelativeOffset a, RelativeOffset b) {
     if (seriesLines[s] == null) seriesLines[s] = [];
-    seriesLines[s].add(RelativeLine(a, b));
+    seriesLines[s].add(ChartLine(a, b));
   }
 
   void placePoint(ChartEntity<T1, T2> e, RelativeOffset o, Color color) {
     entityPoints[e] =
-        RelativePoint(o, radius: theme.point?.radius, color: color);
+        ChartPoint(o, radius: theme.point?.radius, color: color);
   }
 
   @override
@@ -182,7 +182,7 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     if (theme.point != null)
       for (final p in entityPoints.values) {
         canvas.drawCircle(
-          p.offset.toOffset(size),
+          p.offset.toAbsolute(size),
           theme.point.radius,
           Paint()..color = p.color,
         );
