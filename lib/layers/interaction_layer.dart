@@ -118,11 +118,11 @@ class ChartInteractionLayer<T1, T2> extends Layer {
       final ao = a.toRelativeOffset(mapper, bounds);
       bo = b.toRelativeOffset(mapper, bounds);
       placeLine(series, ao, bo);
-      placePoint(a, ao);
+      placePoint(a, ao, series.color);
     }
     if (b == null) b = series.entities[0];
     if (bo == null) bo = b.toRelativeOffset(mapper, bounds);
-    placePoint(b, bo);
+    placePoint(b, bo, series.color);
   }
 
   void placeLine(ChartSeries<T1, T2> s, RelativeOffset a, RelativeOffset b) {
@@ -130,8 +130,9 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     seriesLines[s].add(RelativeLine(a, b));
   }
 
-  void placePoint(ChartEntity<T1, T2> e, RelativeOffset o) {
-    entityPoints[e] = RelativePoint(o);
+  void placePoint(ChartEntity<T1, T2> e, RelativeOffset o, Color color) {
+    entityPoints[e] =
+        RelativePoint(o, radius: theme.point?.radius, color: color);
   }
 
   @override
@@ -178,6 +179,14 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     }
     drawXPointerMarker(canvas, size);
     if (theme.xPointer != null) _drawXPointerLine(canvas, size);
+    if (theme.point != null)
+      for (final p in entityPoints.values) {
+        canvas.drawCircle(
+          p.offset.toOffset(size),
+          theme.point.radius,
+          Paint()..color = p.color,
+        );
+      }
   }
 
   void _drawXPointerLine(Canvas canvas, Size size) {
@@ -212,11 +221,12 @@ class ChartInteractionLayer<T1, T2> extends Layer {
         var deltaB = (xPosition - line.b.dx).abs();
         var nearestDelta = min(deltaA, deltaB);
         return IntersactionInfo(
-            line: line,
-            offset: Offset(cross.x.toDouble(), cross.y.toDouble()),
-            entities: Pair(series.entities[i - 1], series.entities[i]),
-            nearestEntity: nearestDelta == deltaA ? a : b,
-            deltaToNearest: nearestDelta);
+          line: line,
+          offset: Offset(cross.x.toDouble(), cross.y.toDouble()),
+          entities: Pair(series.entities[i - 1], series.entities[i]),
+          nearestEntity: nearestDelta == deltaA ? a : b,
+          deltaToNearest: nearestDelta,
+        );
       }
     }
 
@@ -260,7 +270,10 @@ class ChartInteractionLayer<T1, T2> extends Layer {
         ],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-      ).createShader(Offset(cross.dx, cross.dy - MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2) & Size(MARKER_Y_HIGHLIGHT_BACKGROUND_WIDTH, MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT));
+      ).createShader(Offset(
+              cross.dx, cross.dy - MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2) &
+          Size(MARKER_Y_HIGHLIGHT_BACKGROUND_WIDTH,
+              MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT));
 
     var linePaint = Paint()
       ..strokeWidth = 1
@@ -275,7 +288,11 @@ class ChartInteractionLayer<T1, T2> extends Layer {
         end: Alignment.bottomCenter,
       ).createShader(Offset(cross.dx, cross.dy - 10) & Size(1, 20));
     canvas.drawRect(
-      Rect.fromLTRB(-MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT, cross.dy - MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2, -2, cross.dy + MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2),
+      Rect.fromLTRB(
+          -MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT,
+          cross.dy - MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2,
+          -2,
+          cross.dy + MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2),
       backgroundPaint,
     );
     canvas.drawLine(
@@ -351,13 +368,20 @@ class ChartInteractionLayer<T1, T2> extends Layer {
         ],
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
-      ).createShader(Offset(xPos - MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2, size.height) & Size(MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH, MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT));
+      ).createShader(
+          Offset(xPos - MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2, size.height) &
+              Size(MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH,
+                  MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT));
 
     canvas.drawRect(
-      Rect.fromLTRB(xPos - MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2, size.height, xPos + MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2, size.height + MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT),
+      Rect.fromLTRB(
+          xPos - MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2,
+          size.height,
+          xPos + MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2,
+          size.height + MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT),
       backgroundPaint,
     );
-    
+
     final textStyle =
         TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold);
     final textSpan = TextSpan(
