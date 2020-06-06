@@ -7,12 +7,15 @@ import 'package:flutter/material.dart';
 
 import 'chart_controller.dart';
 
+enum ChartInteractionMode { pointer, gesture, hybrid }
+
 class Chart<T1, T2> extends StatefulWidget {
   final ChartData<T1, T2> chartData;
   final ChartMapper<T1, T2> mapper;
   final ChartMarkersPointer<T1, T2> markersPointer;
   final PointPressedCallback pointPressed;
   final ChartTheme theme;
+  final ChartInteractionMode interactionMode;
 
   Chart({
     @required this.chartData,
@@ -20,6 +23,7 @@ class Chart<T1, T2> extends StatefulWidget {
     this.theme = const ChartTheme(),
     this.pointPressed,
     this.markersPointer,
+    this.interactionMode = ChartInteractionMode.hybrid,
   }) : assert((theme.yMarkers != null || theme.xMarkers != null) &&
             markersPointer != null);
   @override
@@ -59,9 +63,11 @@ class ChartPaint extends CustomPainter {
 
 class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   ChartController chartController;
+  ChartInteractionMode interactionMode;
 
   @override
   void initState() {
+    interactionMode = widget.interactionMode;
     super.initState();
     chartController = ChartController(
       widget.theme,
@@ -81,7 +87,11 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chartData != widget.chartData) {
       startAnimation(oldWidget.chartData, widget.chartData);
-      return;
+    }
+    if (oldWidget.interactionMode != widget.interactionMode) {
+      setState(() {
+        interactionMode = widget.interactionMode;
+      });
     }
   }
 
@@ -108,11 +118,9 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
             onHorizontalDragDown: (d) {
               var interacted = false;
               for (final l in chartController.layers) {
-                if (l.hitTest(d.localPosition)) 
-                  interacted = true;
+                if (l.hitTest(d.localPosition)) interacted = true;
               }
-              if (!interacted)
-                chartController.setXPosition(d.localPosition.dx);
+              if (!interacted) chartController.setXPosition(d.localPosition.dx);
             },
             onHorizontalDragEnd: (d) {
               chartController.setXPosition(null);

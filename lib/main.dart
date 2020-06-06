@@ -53,7 +53,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var dataNum = 0;
+  var dataIndexes = [0, 0, 0];
 
   @override
   void initState() {
@@ -89,19 +89,54 @@ class _MyHomePageState extends State<MyHomePage> {
         ]),
       ];
 
+  Widget chartWithLabel(
+    BuildContext context,
+    String title,
+    int dataIndexNumber,
+    ChartInteractionMode mode,
+  ) {
+    return Stack(
+      children: [
+        Chart(
+          theme: ChartTheme(),
+          mapper: ChartMapper(IntMapper(), IntMapper()),
+          markersPointer:
+              ChartMarkersPointer(IntMarkersPointer(1), IntMarkersPointer(2)),
+          chartData: data[dataIndexes[dataIndexNumber]],
+          interactionMode: mode,
+          pointPressed: (_) => setState(() => dataIndexes[dataIndexNumber] =
+              (dataIndexes[dataIndexNumber] + 1) % data.length),
+        ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.headline6,
+              )),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Chart(
-          theme: ChartTheme(),
-          mapper: ChartMapper(IntMapper(), IntMapper()),
-          markersPointer: ChartMarkersPointer(IntMarkersPointer(1), IntMarkersPointer(2)),
-          chartData: data[dataNum],
-          pointPressed: (_) =>
-              setState(() => dataNum = (dataNum + 1) % data.length),
+      body: Column(children: [
+        Expanded(
+          flex: 1,
+          child: chartWithLabel(context, 'pointer mode', 0, ChartInteractionMode.pointer),
         ),
-      ),
+        Expanded(
+          flex: 1,
+          child: chartWithLabel(context, 'gesture mode', 1, ChartInteractionMode.gesture),
+        ),
+        Expanded(
+          flex: 1,
+          child: chartWithLabel(context, 'hybrid mode', 2, ChartInteractionMode.hybrid),
+        ),
+      ]),
     );
   }
 }
