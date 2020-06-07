@@ -93,7 +93,11 @@ class ChartMoveLayer extends Layer {
         var a = points[i - 1].toAbsolute(size);
         b = points[i].toAbsolute(size);
         drawLine(canvas, a, b, s.from.color);
+        if (s.showPoints)
+          drawPoint(canvas, a, s.from.color);
       }
+      if (b != null)
+          drawPoint(canvas, b, s.from.color);
     }
   }
 

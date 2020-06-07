@@ -12,6 +12,7 @@ class SeriesAnimationBuilderDataSingle<T1, T2> {
 
   SeriesAnimationBuilderDataSingle(this.bounds, this.series, this.mapper);
 }
+
 class SeriesAnimationBuilderData<T1, T2> {
   final ChartBoundsDoubled boundsFrom;
   final ChartBoundsDoubled boundsTo;
@@ -19,18 +20,21 @@ class SeriesAnimationBuilderData<T1, T2> {
   final ChartSeries<T1, T2> seriesTo;
   final ChartMapper<T1, T2> mapper;
 
-  SeriesAnimationBuilderData(this.boundsFrom, this.boundsTo, this.seriesFrom, this.seriesTo, this.mapper);
+  SeriesAnimationBuilderData(this.boundsFrom, this.boundsTo, this.seriesFrom,
+      this.seriesTo, this.mapper);
 }
 
 class AnimatedSeries {
   final List<Animatable<RelativeOffset>> offsetAnimatables;
   final ChartSeries to;
   final ChartSeries from;
+  final bool showPoints;
 
   AnimatedSeries({
     @required this.to,
     @required this.from,
     @required this.offsetAnimatables,
+    this.showPoints = false,
   });
 
   List<RelativeOffset> points(Animation<double> animation) {
@@ -42,9 +46,9 @@ class AnimatedSeries {
 }
 
 abstract class AnimatedSeriesBuilder {
- AnimatedSeries build(SeriesAnimationBuilderData data);
+  AnimatedSeries build(SeriesAnimationBuilderData data);
 }
 
 abstract class AnimatedSeriesBuilderSingle {
- AnimatedSeries build(SeriesAnimationBuilderDataSingle data);
+  AnimatedSeries build(SeriesAnimationBuilderDataSingle data);
 }

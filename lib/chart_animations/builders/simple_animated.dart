@@ -96,6 +96,7 @@ class SimpleAnimatedSeriesBuilder implements AnimatedSeriesBuilder {
       from: seriesFrom,
       to: seriesTo,
       offsetAnimatables: [...fromValues, ...toValues],
+      showPoints: true,
     );
   }
 }

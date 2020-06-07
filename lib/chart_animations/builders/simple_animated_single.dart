@@ -33,6 +33,7 @@ class SimpleAnimatedSeriesBuilderSingle implements AnimatedSeriesBuilderSingle {
       from: series,
       to: series,
       offsetAnimatables: values,
+      showPoints: true,
     );
   }
 }

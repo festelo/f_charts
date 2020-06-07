@@ -83,9 +83,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     return Container(
       decoration: BoxDecoration(border: Border.all(width: 1)),
       padding: EdgeInsets.all(20),
-      child: GestureDetector(
-        child: ChartDrawBox(chartController),
-      ),
+      child: ChartDrawBox(chartController),
     );
   }
 }
