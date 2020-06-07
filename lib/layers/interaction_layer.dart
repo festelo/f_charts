@@ -10,14 +10,6 @@ import 'package:flutter/painting.dart';
 
 import 'layer.dart';
 
-const MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT = 60.0;
-const MARKER_Y_HIGHLIGHT_BACKGROUND_WIDTH = 20.0;
-const MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR = Colors.white;
-
-const MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT = 20.0;
-const MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH = 60.0;
-const MARKER_X_HIGHLIGHT_BACKGROUND_COLOR = Colors.white;
-
 class IntersactionInfo<T1, T2> {
   final Pair<Offset> line;
   final Offset offset;
@@ -129,8 +121,7 @@ class ChartInteractionLayer<T1, T2> extends Layer {
   }
 
   void placePoint(ChartEntity<T1, T2> e, RelativeOffset o, Color color) {
-    entityPoints[e] =
-        ChartPoint(o, radius: theme.point?.radius, color: color);
+    entityPoints[e] = ChartPoint(o, radius: theme.point?.radius, color: color);
   }
 
   @override
@@ -261,17 +252,16 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     var backgroundPaint = Paint()
       ..shader = LinearGradient(
         colors: [
-          MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR.withOpacity(0),
-          MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR,
-          MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR,
-          MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR.withOpacity(0),
+          theme.background.withOpacity(0),
+          theme.background,
+          theme.background,
+          theme.background.withOpacity(0),
         ],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-      ).createShader(Offset(
-              cross.dx, cross.dy - MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2) &
-          Size(MARKER_Y_HIGHLIGHT_BACKGROUND_WIDTH,
-              MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT));
+      ).createShader(
+          Offset(cross.dx, cross.dy - theme.yHighlightMarker.mainAxisSize / 2) &
+              Size(theme.outerSpace.left, theme.yHighlightMarker.mainAxisSize));
 
     var linePaint = Paint()
       ..strokeWidth = 1
@@ -287,10 +277,10 @@ class ChartInteractionLayer<T1, T2> extends Layer {
       ).createShader(Offset(cross.dx, cross.dy - 10) & Size(1, 20));
     canvas.drawRect(
       Rect.fromLTRB(
-          -MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT,
-          cross.dy - MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2,
+          -theme.outerSpace.left,
+          cross.dy - theme.yHighlightMarker.mainAxisSize / 2,
           -2,
-          cross.dy + MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT / 2),
+          cross.dy + theme.yHighlightMarker.mainAxisSize / 2),
       backgroundPaint,
     );
     canvas.drawLine(
@@ -359,24 +349,23 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     var backgroundPaint = Paint()
       ..shader = LinearGradient(
         colors: [
-          MARKER_X_HIGHLIGHT_BACKGROUND_COLOR.withOpacity(0),
-          MARKER_X_HIGHLIGHT_BACKGROUND_COLOR,
-          MARKER_X_HIGHLIGHT_BACKGROUND_COLOR,
-          MARKER_X_HIGHLIGHT_BACKGROUND_COLOR.withOpacity(0),
+          theme.background.withOpacity(0),
+          theme.background,
+          theme.background,
+          theme.background.withOpacity(0),
         ],
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
-      ).createShader(
-          Offset(xPos - MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2, size.height) &
-              Size(MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH,
-                  MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT));
+      ).createShader(Offset(
+              xPos - theme.xHighlightMarker.mainAxisSize / 2, size.height) &
+          Size(theme.xHighlightMarker.mainAxisSize, theme.outerSpace.bottom));
 
     canvas.drawRect(
       Rect.fromLTRB(
-          xPos - MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2,
-          size.height,
-          xPos + MARKER_X_HIGHLIGHT_BACKGROUND_WIDTH / 2,
-          size.height + MARKER_X_HIGHLIGHT_BACKGROUND_HEIGHT),
+          xPos - theme.xHighlightMarker.mainAxisSize / 2,
+          size.height + theme.xAxis.width,
+          xPos + theme.xHighlightMarker.mainAxisSize / 2,
+          size.height + theme.outerSpace.bottom),
       backgroundPaint,
     );
 

@@ -6,10 +6,14 @@ class ChartTheme {
   final LineTheme xPointer;
   final MarkersTheme yMarkers;
   final MarkersTheme xMarkers;
+  final HighlightMarker xHighlightMarker;
+  final HighlightMarker yHighlightMarker;
   final LineTheme line;
   final LineTheme xAxis;
   final LineTheme yAxis;
   final CircleTheme point;
+  final EdgeInsets outerSpace;
+  final Color background;
 
   const ChartTheme({
     this.xPointer = const LineTheme(color: Colors.grey),
@@ -19,6 +23,10 @@ class ChartTheme {
     this.point = const CircleTheme(),
     this.yMarkers = const MarkersTheme(),
     this.xMarkers = const MarkersTheme(line: null),
+    this.outerSpace = const EdgeInsets.all(20),
+    this.background = Colors.white,
+    this.xHighlightMarker = const HighlightMarker(),
+    this.yHighlightMarker = const HighlightMarker(),
   });
 
   ChartTheme copyWith({
@@ -29,6 +37,8 @@ class ChartTheme {
     LineTheme xAxis,
     LineTheme yAxis,
     CircleTheme point,
+    HighlightMarker xHighlightMarker,
+    HighlightMarker yHighlightMarker,
   }) {
     return ChartTheme(
       xPointer: xPointer ?? this.xPointer,
@@ -38,6 +48,8 @@ class ChartTheme {
       xAxis: xAxis ?? this.xAxis,
       yAxis: yAxis ?? this.yAxis,
       point: point ?? this.point,
+      xHighlightMarker: xHighlightMarker ?? this.xHighlightMarker,
+      yHighlightMarker: yHighlightMarker ?? this.yHighlightMarker,
     );
   }
 }
@@ -61,4 +73,9 @@ class MarkersTheme {
     this.line = const LineTheme(width: 1, color: Colors.black12),
     this.text = const TextStyle(color: Colors.grey, fontSize: 12),
   });
+}
+
+class HighlightMarker {
+  final double mainAxisSize;
+  const HighlightMarker({this.mainAxisSize = 60});
 }

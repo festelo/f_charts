@@ -143,6 +143,10 @@ class ChartController<T1, T2> implements Listenable {
     return interacted;
   }
 
+  Offset translateOuterOffset(Offset offset) {
+    return offset - Offset(theme.outerSpace.left, theme.outerSpace.top);
+  }
+
   Future<void> move(
     ChartData<T1, T2> to, {
     MoveAnimation animation,

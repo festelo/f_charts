@@ -9,13 +9,18 @@ class ChartPaint extends CustomPainter {
 
   ChartPaint({
     this.layers,
-    this.chartPadding = const EdgeInsets.all(50),
+    this.chartPadding,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.translate(chartPadding.left, chartPadding.top);
+    final newSize = Size(
+      size.width - chartPadding.left - chartPadding.right,
+      size.height - chartPadding.top - chartPadding.bottom,
+    );
     for (final layer in layers) {
-      if (layer.shouldDraw()) layer.draw(canvas, size);
+      if (layer.shouldDraw()) layer.draw(canvas, newSize);
     }
   }
 
@@ -36,9 +41,10 @@ class ChartDrawBox extends StatelessWidget {
 
     if (controller.interactionMode == ChartInteractionMode.pointer) {
       onHorizontalDragDown = (d) {
+        final offset = controller.translateOuterOffset(d.localPosition);
         if (controller.state.isSwitching) return;
-        if (controller.tap(d.localPosition)) return;
-        controller.setXPointerPosition(d.localPosition.dx);
+        if (controller.tap(offset)) return;
+        controller.setXPointerPosition(offset.dx);
       };
 
       onHorizontalDragEnd = (d) {
@@ -47,13 +53,15 @@ class ChartDrawBox extends StatelessWidget {
       };
 
       onHorizontalDragUpdate = (d) {
+        final offset = controller.translateOuterOffset(d.localPosition);
         if (controller.state.isSwitching) return;
-        controller.setXPointerPosition(d.localPosition.dx);
+        controller.setXPointerPosition(offset.dx);
       };
     } else if (controller.interactionMode == ChartInteractionMode.gesture) {
       onHorizontalDragDown = (d) {
+        final offset = controller.translateOuterOffset(d.localPosition);
         if (controller.state.isSwitching) return;
-        if (controller.tap(d.localPosition)) return;
+        if (controller.tap(offset)) return;
         controller.startDragging();
       };
 
@@ -79,7 +87,10 @@ class ChartDrawBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       size: Size.infinite,
-      foregroundPainter: ChartPaint(layers: controller.layers),
+      foregroundPainter: ChartPaint(
+        layers: controller.layers,
+        chartPadding: controller.theme.outerSpace,
+      ),
       child: gestureDetector(context),
     );
   }

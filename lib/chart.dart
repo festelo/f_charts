@@ -82,7 +82,6 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(border: Border.all(width: 1)),
-      padding: EdgeInsets.all(20),
       child: ChartDrawBox(chartController),
     );
   }
