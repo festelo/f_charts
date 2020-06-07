@@ -1,10 +1,16 @@
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:f_charts/data_models/_.dart';
 
 class ChartData<TAbscissa, TOrdinate> {
   final List<ChartSeries<TAbscissa, TOrdinate>> series;
   const ChartData(this.series);
+
+  @override
+  bool operator ==(Object other) =>
+      other is ChartData<TAbscissa, TOrdinate> &&
+      const DeepCollectionEquality().equals(other.series, series);
 }
 
 class ChartSeries<TAbscissa, TOrdinate> {
@@ -13,6 +19,13 @@ class ChartSeries<TAbscissa, TOrdinate> {
   final String name;
 
   const ChartSeries({this.entities, this.color, this.name});
+
+  @override
+  bool operator ==(Object other) =>
+      other is ChartSeries<TAbscissa, TOrdinate> &&
+      other.color == color &&
+      other.name == name &&
+      const DeepCollectionEquality().equals(other.entities, entities);
 }
 
 class ChartBounds<TAbscissa, TOrdinate> {
@@ -22,22 +35,37 @@ class ChartBounds<TAbscissa, TOrdinate> {
   final TOrdinate maxOrdinate;
 
   ChartBounds(
-      this.minAbscissa, this.maxAbscissa, this.minOrdinate, this.maxOrdinate);
+    this.minAbscissa,
+    this.maxAbscissa,
+    this.minOrdinate,
+    this.maxOrdinate,
+  );
 }
 
 class ChartBoundsDoubled extends ChartBounds<double, double> {
-  ChartBoundsDoubled(double minAbscissa, double maxAbscissa, double minOrdinate, double maxOrdinate):
-    super(minAbscissa, maxAbscissa, minOrdinate, maxOrdinate);
+  ChartBoundsDoubled(
+    double minAbscissa,
+    double maxAbscissa,
+    double minOrdinate,
+    double maxOrdinate,
+  ) : super(minAbscissa, maxAbscissa, minOrdinate, maxOrdinate);
 
-  static ChartBoundsDoubled fromBounds<T1, T2>(ChartBounds<T1, T2> bounds, ChartMapper<T1, T2> mapper) {
+  static ChartBoundsDoubled fromBounds<T1, T2>(
+    ChartBounds<T1, T2> bounds,
+    ChartMapper<T1, T2> mapper,
+  ) {
     final minAbscissa = mapper.abscissaMapper.toDouble(bounds.minAbscissa);
     final maxAbscissa = mapper.abscissaMapper.toDouble(bounds.maxAbscissa);
     final minOrdinate = mapper.ordinateMapper.toDouble(bounds.minOrdinate);
     final maxOrdinate = mapper.ordinateMapper.toDouble(bounds.maxOrdinate);
-    return ChartBoundsDoubled(minAbscissa, maxAbscissa, minOrdinate, maxOrdinate);
+    return ChartBoundsDoubled(
+        minAbscissa, maxAbscissa, minOrdinate, maxOrdinate);
   }
 
-  static ChartBoundsDoubled fromData<T1, T2>(ChartData<T1, T2> data, ChartMapper<T1, T2> mapper) {
+  static ChartBoundsDoubled fromData<T1, T2>(
+    ChartData<T1, T2> data,
+    ChartMapper<T1, T2> mapper,
+  ) {
     return fromBounds(mapper.getBounds(data), mapper);
   }
 }
@@ -46,4 +74,10 @@ class ChartEntity<TAbscissa, TOrdinate> {
   final TOrdinate ordinate;
   final TAbscissa abscissa;
   ChartEntity(this.abscissa, this.ordinate);
+
+  @override
+  bool operator ==(Object other) =>
+      other is ChartEntity<TAbscissa, TOrdinate> &&
+      other.ordinate == ordinate &&
+      other.abscissa == abscissa;
 }
