@@ -93,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
     BuildContext context,
     String title,
     int dataIndexNumber,
-    ChartInteractionMode mode,
+    ChartGestureHandlerBuilder gestureHandler,
   ) {
     return Stack(
       children: [
@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
           markersPointer:
               ChartMarkersPointer(IntMarkersPointer(1), IntMarkersPointer(2)),
           chartData: data[dataIndexes[dataIndexNumber]],
-          interactionMode: mode,
+          gestureHandlerBuilder: gestureHandler,
           swiped: (a) {
             setState(() {
               dataIndexes[dataIndexNumber] = (dataIndexes[dataIndexNumber] + 1) % data.length;
@@ -132,15 +132,15 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(children: [
         Expanded(
           flex: 1,
-          child: chartWithLabel(context, 'pointer mode', 0, ChartInteractionMode.pointer),
+          child: chartWithLabel(context, 'pointer mode', 0, const PointerHandlerBuilder()),
         ),
         Expanded(
           flex: 1,
-          child: chartWithLabel(context, 'gesture mode', 1, ChartInteractionMode.gesture),
+          child: chartWithLabel(context, 'gesture mode', 1, const GestureHandlerBuilder()),
         ),
         Expanded(
           flex: 1,
-          child: chartWithLabel(context, 'hybrid mode', 2, ChartInteractionMode.hybrid),
+          child: chartWithLabel(context, 'hybrid mode', 2, const HybridHandlerBuilder()),
         ),
       ]),
     );

@@ -32,49 +32,27 @@ class ChartPaint extends CustomPainter {
 
 class ChartDrawBox extends StatelessWidget {
   final ChartController controller;
-  ChartDrawBox(this.controller);
+  final ChartGestureHandler modeHandler;
+  ChartDrawBox(this.controller, this.modeHandler);
 
   Widget gestureDetector(BuildContext context) {
     void Function(DragDownDetails) onHorizontalDragDown;
     void Function(DragEndDetails) onHorizontalDragEnd;
     void Function(DragUpdateDetails) onHorizontalDragUpdate;
 
-    if (controller.interactionMode == ChartInteractionMode.pointer) {
-      onHorizontalDragDown = (d) {
-        final offset = controller.translateOuterOffset(d.localPosition);
-        if (controller.state.isSwitching) return;
-        if (controller.tap(offset)) return;
-        controller.setXPointerPosition(offset.dx);
-      };
+    onHorizontalDragDown = (d) {
+      final offset = controller.translateOuterOffset(d.localPosition);
+      modeHandler.tapDown(offset);
+    };
 
-      onHorizontalDragEnd = (d) {
-        if (controller.state.isSwitching) return;
-        controller.setXPointerPosition(null);
-      };
+    onHorizontalDragEnd = (d) {
+      modeHandler.tapUp();
+    };
 
-      onHorizontalDragUpdate = (d) {
-        final offset = controller.translateOuterOffset(d.localPosition);
-        if (controller.state.isSwitching) return;
-        controller.setXPointerPosition(offset.dx);
-      };
-    } else if (controller.interactionMode == ChartInteractionMode.gesture) {
-      onHorizontalDragDown = (d) {
-        final offset = controller.translateOuterOffset(d.localPosition);
-        if (controller.state.isSwitching) return;
-        if (controller.tap(offset)) return;
-        controller.startDragging();
-      };
-
-      onHorizontalDragEnd = (d) {
-        if (!controller.state.isDragging) return;
-        controller.endDrag(context.size);
-      };
-
-      onHorizontalDragUpdate = (d) {
-        if (!controller.state.isDragging) return;
-        controller.addDraggingOffset(d.delta);
-      };
-    }
+    onHorizontalDragUpdate = (d) {
+      final offset = controller.translateOuterOffset(d.localPosition);
+      modeHandler.tapMove(offset, d.delta);
+    };
 
     return GestureDetector(
       onHorizontalDragDown: onHorizontalDragDown,
@@ -85,6 +63,7 @@ class ChartDrawBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    modeHandler.attachContext(context);
     return CustomPaint(
       size: Size.infinite,
       foregroundPainter: ChartPaint(

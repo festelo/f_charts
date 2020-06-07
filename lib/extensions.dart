@@ -12,6 +12,9 @@ extension OffsetExtenstions on Offset {
   Point toPoint() {
     return Point(this.dx, this.dy);
   }
+  Offset abs() {
+    return Offset(this.dx.abs(), this.dy.abs());
+  }
 }
 
 extension RelativeOffsetExtenstions on RelativeOffset {

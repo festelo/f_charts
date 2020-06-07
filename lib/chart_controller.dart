@@ -14,7 +14,6 @@ class ChartController<T1, T2> implements Listenable {
   final ChartTheme theme;
   final ChartMapper<T1, T2> mapper;
   final ChartMarkersPointer<T1, T2> markersPointer;
-  final ChartInteractionMode interactionMode;
 
   final PointPressedCallback pointPressed;
   final SwipedCallback swiped;
@@ -30,7 +29,6 @@ class ChartController<T1, T2> implements Listenable {
     ChartState state = null,
     this.pointPressed,
     this.swiped,
-    this.interactionMode = ChartInteractionMode.hybrid,
   })  : state = state ?? ChartState(),
         moveAnimationController = AnimationController(
           vsync: vsync,
@@ -100,13 +98,13 @@ class ChartController<T1, T2> implements Listenable {
     );
   }
 
-  void endDrag(Size size) {
+  void endDrag(Size size, {bool withAnimation = true}) {
     var draggingOffset = state.draggingOffset;
 
     state.isDragging = false;
     state.draggingOffset = Offset(0, 0);
 
-    if (swiped == null) {
+    if (swiped == null || !withAnimation) {
       notifyListeners();
       return;
     }

@@ -12,8 +12,8 @@ class Chart<T1, T2> extends StatefulWidget {
   final ChartMapper<T1, T2> mapper;
   final ChartMarkersPointer<T1, T2> markersPointer;
   final ChartTheme theme;
-  final ChartInteractionMode interactionMode;
-  
+  final ChartGestureHandlerBuilder gestureHandlerBuilder;
+
   final PointPressedCallback pointPressed;
   final SwipedCallback swiped;
 
@@ -24,7 +24,7 @@ class Chart<T1, T2> extends StatefulWidget {
     this.pointPressed,
     this.markersPointer,
     this.swiped,
-    this.interactionMode = ChartInteractionMode.hybrid,
+    this.gestureHandlerBuilder = const PointerHandlerBuilder(),
   }) : assert((theme.yMarkers != null || theme.xMarkers != null) &&
             markersPointer != null);
   @override
@@ -33,11 +33,10 @@ class Chart<T1, T2> extends StatefulWidget {
 
 class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   ChartController chartController;
-  ChartInteractionMode interactionMode;
+  ChartGestureHandler gestureHandler;
 
   @override
   void initState() {
-    interactionMode = widget.interactionMode;
     super.initState();
     chartController = ChartController(
       widget.chartData,
@@ -47,8 +46,8 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
       theme: widget.theme,
       pointPressed: widget.pointPressed,
       swiped: widget.swiped,
-      interactionMode: widget.interactionMode,
     );
+    gestureHandler = widget.gestureHandlerBuilder.build(chartController);
     chartController.initLayers();
     chartController.addListener(() {
       setState(() {});
@@ -60,11 +59,6 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chartData != widget.chartData) {
       startAnimation(widget.chartData);
-    }
-    if (oldWidget.interactionMode != widget.interactionMode) {
-      setState(() {
-        interactionMode = widget.interactionMode;
-      });
     }
   }
 
@@ -82,7 +76,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(border: Border.all(width: 1)),
-      child: ChartDrawBox(chartController),
+      child: ChartDrawBox(chartController, gestureHandler),
     );
   }
 }
