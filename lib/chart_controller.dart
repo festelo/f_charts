@@ -77,9 +77,13 @@ class ChartController<T1, T2> implements Listenable {
     notifyListeners();
   }
 
-  void addDraggingOffset(Offset offset) {
+  void startDragging() {
     state.isDragging = true;
+  }
+
+  void addDraggingOffset(Offset offset) {
     state.draggingOffset += offset;
+    state.isDragging = true;
     notifyListeners();
   }
 

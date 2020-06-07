@@ -36,27 +36,34 @@ class ChartDrawBox extends StatelessWidget {
 
     if (controller.interactionMode == ChartInteractionMode.pointer) {
       onHorizontalDragDown = (d) {
+        if (controller.state.isSwitching) return;
         if (controller.tap(d.localPosition)) return;
         controller.setXPointerPosition(d.localPosition.dx);
       };
 
       onHorizontalDragEnd = (d) {
+        if (controller.state.isSwitching) return;
         controller.setXPointerPosition(null);
       };
 
       onHorizontalDragUpdate = (d) {
+        if (controller.state.isSwitching) return;
         controller.setXPointerPosition(d.localPosition.dx);
       };
     } else if (controller.interactionMode == ChartInteractionMode.gesture) {
       onHorizontalDragDown = (d) {
+        if (controller.state.isSwitching) return;
         if (controller.tap(d.localPosition)) return;
+        controller.startDragging();
       };
 
       onHorizontalDragEnd = (d) {
+        if (!controller.state.isDragging) return;
         controller.endDrag(context.size);
       };
 
       onHorizontalDragUpdate = (d) {
+        if (!controller.state.isDragging) return;
         controller.addDraggingOffset(d.delta);
       };
     }
