@@ -10,8 +10,6 @@ import 'package:flutter/painting.dart';
 
 import 'layer.dart';
 
-typedef PointPressedCallback<T1, T2> = Function(ChartEntity<T1, T2> entity);
-
 const MARKER_Y_HIGHLIGHT_BACKGROUND_HEIGHT = 60.0;
 const MARKER_Y_HIGHLIGHT_BACKGROUND_WIDTH = 20.0;
 const MARKER_Y_HIGHLIGHT_BACKGROUND_COLOR = Colors.white;
@@ -140,7 +138,7 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     if (pointPressed == null ||
         cachedEntityPointsAbs == null ||
         cachedEntityPointsAbs.isEmpty ||
-        state.isMoving) return super.hitTest(position);
+        state.isSwitching) return super.hitTest(position);
 
     for (final e in cachedEntityPointsAbs.entries) {
       final diff = e.value - position;
@@ -159,7 +157,7 @@ class ChartInteractionLayer<T1, T2> extends Layer {
   }
 
   @override
-  bool shouldDraw() => !state.isMoving;
+  bool shouldDraw() => !state.isSwitching && !state.isDragging;
 
   @override
   void draw(Canvas canvas, Size size) {

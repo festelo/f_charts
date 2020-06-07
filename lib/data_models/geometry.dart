@@ -31,13 +31,13 @@ class CombinedOffset implements ChartOffset {
 }
 
 class RelativeOffset implements ChartOffset {
-  double dx;
-  double dy;
+  final double dx;
+  final double dy;
 
   static const max = 1;
   static const min = 0;
 
-  RelativeOffset(this.dx, this.dy);
+  const RelativeOffset(this.dx, this.dy);
 
   RelativeOffset.fromOffset(Offset relativeOffset, Size viewportSize)
       : dx = relativeOffset.dx / viewportSize.width,
@@ -47,19 +47,15 @@ class RelativeOffset implements ChartOffset {
     return RelativeOffset(dx / viewportSize.width, dy / viewportSize.height);
   }
 
-  RelativeOffset reverseY() => copy()..dy = 1 - dy;
+  RelativeOffset reverseY() => RelativeOffset(dx, 1 - dy);
 
-  RelativeOffset reverseX() => copy()..dx = 1 - dx;
+  RelativeOffset reverseX() => RelativeOffset(1 - dx, dy);
 
   RelativeOffset operator +(Object other) {
     if (other is RelativeOffset) {
-      return copy()
-        ..dx = dx + other.dx
-        ..dy = dy + other.dy;
+      return RelativeOffset(dx + other.dx, dy + other.dy);
     } else if (other is num) {
-      return copy()
-        ..dx = dx + other
-        ..dy = dy + other;
+      return RelativeOffset(dx + other, dy + other);
     } else {
       throw Exception('RelativeOffset or num expected');
     }
@@ -67,13 +63,9 @@ class RelativeOffset implements ChartOffset {
 
   RelativeOffset operator -(Object other) {
     if (other is RelativeOffset) {
-      return copy()
-        ..dx = dx - other.dx
-        ..dy = dy - other.dy;
+      return RelativeOffset(dx - other.dx, dy - other.dy);
     } else if (other is num) {
-      return copy()
-        ..dx = dx - other
-        ..dy = dy - other;
+      return RelativeOffset(dx - other, dy - other);
     } else {
       throw Exception('RelativeOffset or num expected');
     }
@@ -81,13 +73,9 @@ class RelativeOffset implements ChartOffset {
 
   RelativeOffset operator *(Object other) {
     if (other is RelativeOffset) {
-      return copy()
-        ..dx = dx * other.dx
-        ..dy = dy * other.dy;
+      return RelativeOffset(dx * other.dx, dy * other.dy);
     } else if (other is num) {
-      return copy()
-        ..dx = dx * other
-        ..dy = dy * other;
+      return RelativeOffset(dx * other, dy * other);
     } else {
       throw Exception('RelativeOffset or num expected');
     }
@@ -95,19 +83,13 @@ class RelativeOffset implements ChartOffset {
 
   RelativeOffset operator /(Object other) {
     if (other is RelativeOffset) {
-      return copy()
-        ..dx = dx / other.dx
-        ..dy = dy / other.dy;
+      return RelativeOffset(dx / other.dx, dy / other.dy);
     } else if (other is num) {
-      return copy()
-        ..dx = dx / other
-        ..dy = dy / other;
+      return RelativeOffset(dx / other, dy / other);
     } else {
       throw Exception('RelativeOffset or num expected');
     }
   }
-
-  RelativeOffset copy() => RelativeOffset(dx, dy);
 
   Offset toAbsolute(Size size) {
     final pointX = dx * size.width;

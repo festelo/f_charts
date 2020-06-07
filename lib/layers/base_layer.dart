@@ -78,14 +78,14 @@ class ChartDrawBaseLayer extends Layer {
   }
 
   @override
-  bool shouldDraw() => !state.isMoving;
+  bool shouldDraw() => !state.isSwitching;
 
   @override
   void draw(Canvas canvas, Size size) {
     for (final l in lines) {
       canvas.drawLine(
-        l.a.toAbsolute(size),
-        l.b.toAbsolute(size),
+        l.a.toAbsolute(size) + state.draggingOffset,
+        l.b.toAbsolute(size) + state.draggingOffset,
         Paint()
           ..color = l.color
           ..strokeWidth = l.width,
@@ -94,7 +94,7 @@ class ChartDrawBaseLayer extends Layer {
 
     for (final p in points) {
       canvas.drawCircle(
-        p.offset.toAbsolute(size),
+        p.offset.toAbsolute(size) + state.draggingOffset,
         theme.point.radius,
         Paint()..color = p.color,
       );

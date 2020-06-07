@@ -1,3 +1,4 @@
+import 'package:f_charts/chart_animations/_.dart';
 import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/animation.dart';
@@ -7,19 +8,30 @@ import 'package:flutter/scheduler.dart';
 
 import 'layers/_.dart';
 
-class ChartController implements Listenable {
+class ChartController<T1, T2> implements Listenable {
   final ObserverList<VoidCallback> _listeners = ObserverList<VoidCallback>();
   final ChartState state;
   final ChartTheme theme;
-  final ChartMapper mapper;
-  final ChartMarkersPointer markersPointer;
+  final ChartMapper<T1, T2> mapper;
+  final ChartMarkersPointer<T1, T2> markersPointer;
+  final ChartInteractionMode interactionMode;
 
   final PointPressedCallback pointPressed;
+  final SwipedCallback swiped;
+
+  ChartData<T1, T2> data;
 
   ChartController(
-      this.theme, this.mapper, this.markersPointer, TickerProvider vsync,
-      {ChartState state = null, this.pointPressed})
-      : state = state ?? ChartState(),
+    this.data,
+    this.mapper,
+    this.markersPointer,
+    TickerProvider vsync, {
+    this.theme = const ChartTheme(),
+    ChartState state = null,
+    this.pointPressed,
+    this.swiped,
+    this.interactionMode = ChartInteractionMode.hybrid,
+  })  : state = state ?? ChartState(),
         moveAnimationController = AnimationController(
           vsync: vsync,
           duration: Duration(milliseconds: 500),
@@ -30,16 +42,20 @@ class ChartController implements Listenable {
   ChartInteractionLayer _interactionLayer;
   ChartDecorationLayer _decorationLayer;
 
+  RelativeOffset _lastDraggingOffset;
+  AxisDirection _lastSwipeDirection;
+  bool _swipeAnimationExpected = false;
+
   List<Layer> get layers => [
         _decorationLayer,
-        _moveLayer,
+        if (state.isSwitching) _moveLayer,
         _baseLayer,
         _interactionLayer,
       ].where((e) => e != null).toList();
 
   AnimationController moveAnimationController;
 
-  void initLayers(ChartData data) {
+  void initLayers() {
     _baseLayer = ChartDrawBaseLayer.calculate(data, theme, state, mapper);
     _interactionLayer = ChartInteractionLayer.calculate(
       data,
@@ -56,22 +72,106 @@ class ChartController implements Listenable {
     );
   }
 
-  void setXPosition(double value) {
+  void setXPointerPosition(double value) {
     _interactionLayer.xPositionAbs = value;
     notifyListeners();
   }
 
-  Future<void> move(ChartData from, ChartData to) async {
-    state.isMoving = true;
-    final moveAnimation = MoveAnimation.between(from, to, mapper);
+  void addDraggingOffset(Offset offset) {
+    state.isDragging = true;
+    state.draggingOffset += offset;
+    notifyListeners();
+  }
+
+  void _returnFromDrag(RelativeOffset relative) {
+    move(
+      data,
+      animation: MoveAnimation.single(
+        data,
+        mapper,
+        animatedSeriesBuilder: SimpleAnimatedSeriesBuilderSingle.direct(
+          initialOffset: relative,
+        ),
+      ),
+    );
+  }
+
+  void endDrag(Size size) {
+    var draggingOffset = state.draggingOffset;
+
+    state.isDragging = false;
+    state.draggingOffset = Offset(0, 0);
+
+    if (swiped == null) {
+      notifyListeners();
+      return;
+    }
+
+    final relative = _lastDraggingOffset = RelativeOffset.withViewport(
+      draggingOffset.dx,
+      draggingOffset.dy,
+      size,
+    );
+
+    if (draggingOffset.dx.abs() < 80) {
+      _returnFromDrag(relative);
+      notifyListeners();
+      return;
+    }
+
+    var axis = draggingOffset.dx < 0 ? AxisDirection.left : AxisDirection.right;
+
+    var handled = swiped(axis);
+    if (!handled)
+      _returnFromDrag(relative);
+    else {
+      _lastSwipeDirection = axis;
+      _swipeAnimationExpected = true;
+    }
+    notifyListeners();
+  }
+
+  bool tap(Offset position) {
+    var interacted = false;
+    for (final l in layers) {
+      if (l.hitTest(position)) interacted = true;
+    }
+    return interacted;
+  }
+
+  Future<void> move(
+    ChartData<T1, T2> to, {
+    MoveAnimation animation,
+  }) async {
+    state.isSwitching = true;
+
+    if (animation == null) {
+      if (_swipeAnimationExpected) {
+        animation = MoveAnimation.between(
+          data,
+          to,
+          mapper,
+          animatedSeriesBuilder: SimpleAnimatedSeriesBuilder.direct(
+            _lastSwipeDirection,
+            initialOffset: _lastDraggingOffset,
+          ),
+        );
+        _swipeAnimationExpected = false;
+      } else {
+        animation = MoveAnimation.between(data, to, mapper);
+      }
+    }
+
+    final moveAnimation = animation;
     _moveLayer = ChartMoveLayer(
       animation: moveAnimation,
       parent: moveAnimationController,
       theme: theme,
     );
     await moveAnimationController.forward(from: 0);
-    state.isMoving = false;
-    initLayers(to);
+    data = to;
+    state.isSwitching = false;
+    initLayers();
     notifyListeners();
   }
 

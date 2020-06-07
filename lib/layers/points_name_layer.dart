@@ -61,7 +61,7 @@ class PointsNameLayer extends Layer {
   }
 
   @override
-  bool shouldDraw() => !state.isMoving;
+  bool shouldDraw() => !state.isSwitching;
 
   @override
   bool themeChangeAffected(ChartTheme theme) {

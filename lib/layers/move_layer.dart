@@ -1,6 +1,7 @@
 import 'dart:ui';
 
-import 'package:f_charts/chart_animations/animated_series.dart';
+import 'package:f_charts/chart_animations/_.dart';
+import 'package:f_charts/layers/_.dart';
 import 'package:f_charts/widget_models/_.dart';
 import 'package:f_charts/data_models/_.dart';
 import 'package:flutter/animation.dart';
@@ -8,13 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'layer.dart';
-
-typedef AnimatedSeriesBuilder = AnimatedSeries Function(
-  ChartBoundsDoubled boundsFrom,
-  ChartBoundsDoubled boundsTo,
-  ChartSeries seriesFrom,
-  ChartSeries seriesTo,
-);
 
 class MoveAnimation {
   final List<AnimatedSeries> series;
@@ -27,20 +21,34 @@ class MoveAnimation {
     @required this.boundsTo,
   });
 
+  factory MoveAnimation.single(
+    ChartData data,
+    ChartMapper mapper, {
+    AnimatedSeriesBuilderSingle animatedSeriesBuilder,
+  }) {
+    animatedSeriesBuilder ??= SimpleAnimatedSeriesBuilderSingle.direct();
+
+    final bounds = ChartBoundsDoubled.fromData(data, mapper);
+    final mapped = Map.fromEntries(data.series.map((c) => MapEntry(c.name, c)));
+    final series = <AnimatedSeries>[];
+    for (final key in mapped.keys) {
+      var data = SeriesAnimationBuilderDataSingle(bounds, mapped[key], mapper);
+      series.add(animatedSeriesBuilder.build(data));
+    }
+    return MoveAnimation(
+      series,
+      boundsFrom: bounds,
+      boundsTo: bounds,
+    );
+  }
+
   factory MoveAnimation.between(
     ChartData from,
     ChartData to,
     ChartMapper mapper, {
     AnimatedSeriesBuilder animatedSeriesBuilder,
   }) {
-    animatedSeriesBuilder ??=
-        (boundsFrom, boundsTo, seriesFrom, seriesTo) => AnimatedSeries.curve(
-              boundsFrom: boundsFrom,
-              boundsTo: boundsTo,
-              seriesFrom: seriesFrom,
-              seriesTo: seriesTo,
-              mapper: mapper,
-            );
+    animatedSeriesBuilder ??= IntersactionAnimatedSeriesBuilder.curve();
 
     final boundsFrom = ChartBoundsDoubled.fromData(from, mapper);
     final boundsTo = ChartBoundsDoubled.fromData(to, mapper);
@@ -49,8 +57,9 @@ class MoveAnimation {
     final mappedTo = Map.fromEntries(to.series.map((c) => MapEntry(c.name, c)));
     final series = <AnimatedSeries>[];
     for (final key in mappedFrom.keys) {
-      series.add(animatedSeriesBuilder(
-          boundsFrom, boundsTo, mappedFrom[key], mappedTo[key]));
+      var data = SeriesAnimationBuilderData(
+          boundsFrom, boundsTo, mappedFrom[key], mappedTo[key], mapper);
+      series.add(animatedSeriesBuilder.build(data));
     }
     ;
     return MoveAnimation(

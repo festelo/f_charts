@@ -104,6 +104,12 @@ class _MyHomePageState extends State<MyHomePage> {
               ChartMarkersPointer(IntMarkersPointer(1), IntMarkersPointer(2)),
           chartData: data[dataIndexes[dataIndexNumber]],
           interactionMode: mode,
+          swiped: (a) {
+            setState(() {
+              dataIndexes[dataIndexNumber] = (dataIndexes[dataIndexNumber] + 1) % data.length;
+            });
+            return true;
+          },
           pointPressed: (_) => setState(() => dataIndexes[dataIndexNumber] =
               (dataIndexes[dataIndexNumber] + 1) % data.length),
         ),
