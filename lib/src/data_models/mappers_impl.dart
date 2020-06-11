@@ -19,6 +19,9 @@ class IntMapper extends EntityMapper<int> {
 }
 
 class DateMapper extends EntityMapper<DateTime> {
+  final String Function(DateTime v) formatter;
+  DateMapper({this.formatter});
+
   @override
   int compare(DateTime a, DateTime b) {
     return a.compareTo(b);
@@ -32,6 +35,6 @@ class DateMapper extends EntityMapper<DateTime> {
 
   @override
   String getString(DateTime value) {
-    return value.toString();
+    return formatter == null ? value.toString() : formatter(value);
   }
 }
