@@ -58,6 +58,9 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
     if (oldWidget.chartData != widget.chartData) {
       startAnimation(widget.chartData);
     }
+    if (oldWidget.theme != widget.theme) {
+      chartController.theme = widget.theme;
+    }
   }
 
   @override
@@ -72,9 +75,6 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(border: Border.all(width: 1)),
-      child: ChartDrawBox(chartController, gestureHandler),
-    );
+    return ChartDrawBox(chartController, gestureHandler);
   }
 }

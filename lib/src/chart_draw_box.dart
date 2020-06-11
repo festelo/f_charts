@@ -13,6 +13,7 @@ class ChartPaint extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.clipRect(Offset(0,0) & size);
     canvas.translate(chartPadding.left, chartPadding.top);
     final newSize = Size(
       size.width - chartPadding.left - chartPadding.right,

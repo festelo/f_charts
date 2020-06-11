@@ -248,6 +248,23 @@ class ChartInteractionLayer<T1, T2> extends Layer {
   void _drawYMarker(
       Canvas canvas, Size size, Offset cross, Color color, String text,
       {bool inactive = false}) {
+    final textStyle =
+        TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold);
+    final textSpan = TextSpan(
+      text: text,
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(
+      minWidth: 0,
+      maxWidth: size.width,
+    );
+
+    var height = textPainter.height + theme.yHighlightMarker.mainAxisMargin * 2;
+
     var backgroundPaint = Paint()
       ..shader = LinearGradient(
         colors: [
@@ -258,9 +275,9 @@ class ChartInteractionLayer<T1, T2> extends Layer {
         ],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-      ).createShader(
-          Offset(cross.dx, cross.dy - theme.yHighlightMarker.mainAxisSize / 2) &
-              Size(theme.outerSpace.left, theme.yHighlightMarker.mainAxisSize));
+      ).createShader(Offset(
+              cross.dx, cross.dy - height / 2) &
+          Size(theme.outerSpace.left, height));
 
     var linePaint = Paint()
       ..strokeWidth = 1
@@ -277,9 +294,9 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     canvas.drawRect(
       Rect.fromLTRB(
           -theme.outerSpace.left,
-          cross.dy - theme.yHighlightMarker.mainAxisSize / 2,
+          cross.dy - height / 2,
           -2,
-          cross.dy + theme.yHighlightMarker.mainAxisSize / 2),
+          cross.dy + height / 2),
       backgroundPaint,
     );
     canvas.drawLine(
@@ -287,20 +304,7 @@ class ChartInteractionLayer<T1, T2> extends Layer {
       Offset(0, min(cross.dy + 10, size.height)),
       linePaint,
     );
-    final textStyle =
-        TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold);
-    final textSpan = TextSpan(
-      text: text,
-      style: textStyle,
-    );
-    final textPainter = TextPainter(
-      text: textSpan,
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout(
-      minWidth: 0,
-      maxWidth: size.width,
-    );
+
     textPainter.paint(canvas,
         Offset(-5 - textPainter.width, cross.dy - textPainter.height / 2));
   }
@@ -308,12 +312,12 @@ class ChartInteractionLayer<T1, T2> extends Layer {
   void _drawPointHighlight(Canvas canvas, Offset cross, Color color) {
     canvas.drawCircle(
       cross,
-      6,
+      theme.point.radius + 1,
       Paint()..color = Colors.grey,
     );
     canvas.drawCircle(
       cross,
-      5,
+      theme.point.radius,
       Paint()..color = color,
     );
   }
@@ -345,29 +349,6 @@ class ChartInteractionLayer<T1, T2> extends Layer {
 
   void _drawXMarker(
       Canvas canvas, Size size, double xPos, Color color, String text) {
-    var backgroundPaint = Paint()
-      ..shader = LinearGradient(
-        colors: [
-          theme.background.withOpacity(0),
-          theme.background,
-          theme.background,
-          theme.background.withOpacity(0),
-        ],
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
-      ).createShader(Offset(
-              xPos - theme.xHighlightMarker.mainAxisSize / 2, size.height) &
-          Size(theme.xHighlightMarker.mainAxisSize, theme.outerSpace.bottom));
-
-    canvas.drawRect(
-      Rect.fromLTRB(
-          xPos - theme.xHighlightMarker.mainAxisSize / 2,
-          size.height + theme.xAxis.width,
-          xPos + theme.xHighlightMarker.mainAxisSize / 2,
-          size.height + theme.outerSpace.bottom),
-      backgroundPaint,
-    );
-
     final textStyle =
         TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold);
     final textSpan = TextSpan(
@@ -381,6 +362,26 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     textPainter.layout(
       minWidth: 0,
       maxWidth: size.width,
+    );
+
+    var width = textPainter.width + theme.xHighlightMarker.mainAxisMargin * 2;
+    var backgroundPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          theme.background.withOpacity(0),
+          theme.background,
+          theme.background,
+          theme.background.withOpacity(0),
+        ],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ).createShader(Offset(xPos - width / 2, size.height) &
+          Size(width, theme.outerSpace.bottom));
+
+    canvas.drawRect(
+      Rect.fromLTRB(xPos - width / 2, size.height + theme.xAxis.width,
+          xPos + width / 2, size.height + theme.outerSpace.bottom),
+      backgroundPaint,
     );
     textPainter.paint(
         canvas, Offset(xPos - textPainter.width / 2, size.height));

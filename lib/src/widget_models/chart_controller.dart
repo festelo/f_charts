@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:f_charts/animations.dart';
 import 'package:f_charts/widget_models.dart';
 import 'package:f_charts/data_models.dart';
@@ -11,7 +12,14 @@ import 'package:f_charts/layers.dart';
 class ChartController<T1, T2> implements Listenable {
   final ObserverList<VoidCallback> _listeners = ObserverList<VoidCallback>();
   final ChartState state;
-  final ChartTheme theme;
+  ChartTheme _theme;
+  ChartTheme get theme => _theme;
+  void set theme(ChartTheme value) {
+    _theme = value;
+    initLayers();
+    notifyListeners();
+  }
+
   final ChartMapper<T1, T2> mapper;
   final ChartMarkersPointer<T1, T2> markersPointer;
 
@@ -25,11 +33,12 @@ class ChartController<T1, T2> implements Listenable {
     this.mapper,
     this.markersPointer,
     TickerProvider vsync, {
-    this.theme = const ChartTheme(),
+    ChartTheme theme = const ChartTheme(),
     ChartState state = null,
     this.pointPressed,
     this.swiped,
   })  : state = state ?? ChartState(),
+        _theme = theme,
         moveAnimationController = AnimationController(
           vsync: vsync,
           duration: Duration(milliseconds: 500),
@@ -168,13 +177,22 @@ class ChartController<T1, T2> implements Listenable {
       }
     }
 
-    final moveAnimation = animation;
-    _moveLayer = ChartMoveLayer(
-      animation: moveAnimation,
-      parent: moveAnimationController,
-      theme: theme,
+    var fromToPointsDifferent = animation.series.every(
+      (e) => const DeepCollectionEquality().equals(
+        e.points(AlwaysStoppedAnimation(0)),
+        e.points(AlwaysStoppedAnimation(1)),
+      ),
     );
-    await moveAnimationController.forward(from: 0);
+    if (fromToPointsDifferent) {
+      final moveAnimation = animation;
+      _moveLayer = ChartMoveLayer(
+        animation: moveAnimation,
+        parent: moveAnimationController,
+        theme: theme,
+      );
+      await moveAnimationController.forward(from: 0);
+    }
+
     data = to;
     state.isSwitching = false;
     initLayers();

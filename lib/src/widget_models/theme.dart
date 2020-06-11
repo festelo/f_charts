@@ -39,6 +39,8 @@ class ChartTheme {
     CircleTheme point,
     HighlightMarker xHighlightMarker,
     HighlightMarker yHighlightMarker,
+    EdgeInsets outerSpace,
+    Color background,
   }) {
     return ChartTheme(
       xPointer: xPointer ?? this.xPointer,
@@ -50,6 +52,8 @@ class ChartTheme {
       point: point ?? this.point,
       xHighlightMarker: xHighlightMarker ?? this.xHighlightMarker,
       yHighlightMarker: yHighlightMarker ?? this.yHighlightMarker,
+      outerSpace: outerSpace ?? this.outerSpace,
+      background: background ?? this.background,
     );
   }
 }
@@ -76,6 +80,6 @@ class MarkersTheme {
 }
 
 class HighlightMarker {
-  final double mainAxisSize;
-  const HighlightMarker({this.mainAxisSize = 60});
+  final double mainAxisMargin;
+  const HighlightMarker({this.mainAxisMargin = 20});
 }
