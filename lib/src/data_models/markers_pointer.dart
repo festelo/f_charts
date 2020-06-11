@@ -32,7 +32,7 @@ class DateTimeMarkersPointer implements MarkersPointer<DateTime> {
     final ret = <DateTime>[];
     final startInt = (min.millisecondsSinceEpoch / step.inMilliseconds).ceil() *
         step.inMilliseconds;
-    final start = DateTime.fromMicrosecondsSinceEpoch(startInt);
+    final start = DateTime.fromMillisecondsSinceEpoch(startInt);
     for (var i = start;
         i.millisecondsSinceEpoch <= max.millisecondsSinceEpoch;
         i = i.add(step)) {
