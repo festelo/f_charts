@@ -118,7 +118,7 @@ class ChartDecorationLayer extends Layer {
     final min = mapper.abscissaMapper.toDouble(bounds.minAbscissa);
     final max = mapper.abscissaMapper.toDouble(bounds.maxAbscissa);
     for (final p in points) {
-      final i = (mapper.abscissaMapper.toDouble(p) - min) / max;
+      final i = (mapper.abscissaMapper.toDouble(p) - min) / (max - min);
       if (theme.xMarkers.line != null)
         axisMarkers.add(ChartLine(
           RelativeOffset(i, 0),
