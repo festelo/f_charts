@@ -43,7 +43,7 @@ class HybridHandlerBuilder extends ChartGestureHandlerBuilder {
   }
 }
 
-enum HybridBehavior { pointer, gesture }
+enum HybridBehavior { pointer, gesture, none }
 
 class HybridHandler extends ChartGestureHandler {
   HybridBehavior behavior;
@@ -54,9 +54,21 @@ class HybridHandler extends ChartGestureHandler {
   @override
   bool tapDown(Offset offset) {
     if (!super.tapDown(offset)) return false;
-    behavior = HybridBehavior.gesture;
-    handleTapDelay(offset);
-    return true;
+    if (_controller.theme.xPointer != null && _controller.swiped != null) {
+      behavior = HybridBehavior.gesture;
+      handleTapDelay(offset);
+      return true;
+    }
+    if (_controller.swiped != null) {
+      behavior = HybridBehavior.gesture;
+      return true;
+    }
+    if (_controller.theme.xPointer != null) {
+      behavior = HybridBehavior.pointer;
+      _controller.setXPointerPosition(offset.dx);
+      return true;
+    }
+    return false;
   }
 
   Future<void> handleTapDelay(Offset offset) async {
