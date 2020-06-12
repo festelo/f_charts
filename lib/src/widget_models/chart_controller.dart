@@ -12,57 +12,31 @@ import 'package:f_charts/layers.dart';
 class ChartController<T1, T2> implements Listenable {
   final ObserverList<VoidCallback> _listeners = ObserverList<VoidCallback>();
   final ChartState state;
-  ChartTheme _theme;
-  ChartTheme get theme => _theme;
-  void set theme(ChartTheme value) {
-    _theme = value;
-    initLayers();
-    notifyListeners();
-  }
 
-  ChartMapper<T1, T2> _mapper;
-  ChartMapper<T1, T2> get mapper => _mapper;
-  void set mapper(ChartMapper<T1, T2> value) {
-    _mapper = value;
-    initLayers();
-    notifyListeners();
-  }
+  ChartTheme theme;
+  ChartMapper<T1, T2> mapper;
+  ChartMarkersPointer<T1, T2> markersPointer;
+  PointPressedCallback<T1, T2> pointPressed;
+  SwipedCallback swiped;
 
-  ChartMarkersPointer<T1, T2> _markersPointer;
-  ChartMarkersPointer<T1, T2> get markersPointer => _markersPointer;
-  void set markersPointer(ChartMarkersPointer<T1, T2> value) {
-    _markersPointer = value;
-    initLayers();
-    notifyListeners();
-  }
-
-
-  PointPressedCallback<T1, T2> _pointPressed;
-  PointPressedCallback<T1, T2> get pointPressed => _pointPressed;
-  void set pointPressed(PointPressedCallback<T1, T2> value) {
-    _pointPressed = value;
+  void redraw() {
     initLayers();
     notifyListeners();
   }
   
-  final SwipedCallback swiped;
 
   ChartData<T1, T2> data;
 
   ChartController(
     this.data,
-    ChartMapper<T1, T2> mapper,
-    ChartMarkersPointer<T1, T2> markersPointer,
+    this.mapper,
+    this.markersPointer,
     TickerProvider vsync, {
-    ChartTheme theme = const ChartTheme(),
+    this.theme = const ChartTheme(),
     ChartState state = null,
-    PointPressedCallback<T1, T2> pointPressed,
+    this.pointPressed,
     this.swiped,
   })  : state = state ?? ChartState(),
-        _theme = theme,
-        _mapper = mapper,
-        _markersPointer = markersPointer,
-        _pointPressed = pointPressed,
         moveAnimationController = AnimationController(
           vsync: vsync,
           duration: Duration(milliseconds: 500),

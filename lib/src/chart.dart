@@ -62,9 +62,6 @@ class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProvider
     if (oldWidget.theme != widget.theme) {
       chartController.theme = widget.theme;
     }
-    if (oldWidget.chartData != widget.chartData) {
-      await startAnimation(widget.chartData);
-    }
     if (oldWidget.markersPointer != widget.markersPointer) {
       chartController.markersPointer = widget.markersPointer;
     }
@@ -73,6 +70,15 @@ class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProvider
     }
     if (oldWidget.pointPressed != widget.pointPressed) {
       chartController.pointPressed = widget.pointPressed;
+    }
+    if (oldWidget.swiped != widget.swiped) {
+      chartController.swiped = widget.swiped;
+    }
+    if (oldWidget.chartData != widget.chartData) {
+      await startAnimation(widget.chartData);
+    }
+    else {
+      chartController.redraw();
     }
   }
 

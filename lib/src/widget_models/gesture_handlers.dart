@@ -72,7 +72,7 @@ class HybridHandler extends ChartGestureHandler {
   }
 
   Future<void> handleTapDelay(Offset offset) async {
-    await Future.delayed(Duration(milliseconds: 100));
+    await Future.delayed(Duration(milliseconds: 200));
     if ((offset - _location).abs() < Offset(5, 20)) {
       behavior = HybridBehavior.pointer;
       _controller.setXPointerPosition(offset.dx);
