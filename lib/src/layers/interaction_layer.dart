@@ -76,18 +76,19 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     ChartState state,
     ChartMapper<T1, T2> mapper, {
     PointPressedCallback<T1, T2> pointPressed,
+    ChartBounds bounds,
   }) {
-    final bounds = ChartBoundsDoubled.fromData(data, mapper);
+    final boundsDoubled = ChartBoundsDoubled.fromDataOr(data, mapper, bounds);
     final layer = ChartInteractionLayer<T1, T2>(
       theme: theme,
       pointPressed: pointPressed,
       mapper: mapper,
-      bounds: bounds,
+      bounds: boundsDoubled,
       state: state,
     );
 
     for (final s in data.series) {
-      layer._placeSeries(s, bounds, mapper);
+      layer._placeSeries(s, boundsDoubled, mapper);
     }
     return layer;
   }

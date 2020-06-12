@@ -46,18 +46,21 @@ class MoveAnimation {
     ChartData to,
     ChartMapper mapper, {
     AnimatedSeriesBuilder animatedSeriesBuilder,
+    ChartBounds boundsFrom,
+    ChartBounds boundsTo,
   }) {
     animatedSeriesBuilder ??= IntersactionAnimatedSeriesBuilder.curve();
 
-    final boundsFrom = ChartBoundsDoubled.fromData(from, mapper);
-    final boundsTo = ChartBoundsDoubled.fromData(to, mapper);
+    final boundsFromDoubled = ChartBoundsDoubled.fromDataOr(from, mapper, boundsFrom);
+    final boundsToDoubled = ChartBoundsDoubled.fromDataOr(to, mapper, boundsTo);
+
     final mappedFrom =
         Map.fromEntries(from.series.map((c) => MapEntry(c.name, c)));
     final mappedTo = Map.fromEntries(to.series.map((c) => MapEntry(c.name, c)));
     final series = <AnimatedSeries>[];
     for (final key in mappedFrom.keys) {
-      var data = SeriesAnimationBuilderData(
-          boundsFrom, boundsTo, mappedFrom[key], mappedTo[key], mapper);
+      var data = SeriesAnimationBuilderData(boundsFromDoubled, boundsToDoubled,
+          mappedFrom[key], mappedTo[key], mapper);
       series.add(animatedSeriesBuilder.build(data));
     }
     ;
@@ -92,11 +95,9 @@ class ChartMoveLayer extends Layer {
         var a = points[i - 1].toAbsolute(size);
         b = points[i].toAbsolute(size);
         drawLine(canvas, a, b, s.from.color);
-        if (s.showPoints)
-          drawPoint(canvas, a, s.from.color);
+        if (s.showPoints) drawPoint(canvas, a, s.from.color);
       }
-      if (b != null)
-          drawPoint(canvas, b, s.from.color);
+      if (b != null) drawPoint(canvas, b, s.from.color);
     }
   }
 

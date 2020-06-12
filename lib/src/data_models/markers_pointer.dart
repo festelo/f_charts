@@ -1,3 +1,5 @@
+import 'date_period.dart';
+
 class ChartMarkersPointer<TAbscissa, TOrdinate> {
   final MarkersPointer<TAbscissa> abscissa;
   final MarkersPointer<TOrdinate> ordinate;
@@ -37,6 +39,20 @@ class DateTimeMarkersPointer implements MarkersPointer<DateTime> {
         i.millisecondsSinceEpoch <= max.millisecondsSinceEpoch;
         i = i.add(step)) {
       ret.add(i);
+    }
+    return ret;
+  }
+}
+
+class DatePeriodMarkersPointer implements MarkersPointer<DateTime> {
+  final DatePeriod period;
+  DatePeriodMarkersPointer(this.period);
+
+  @override
+  List<DateTime> getPoints(min, max) {
+    final ret = <DateTime>[];
+    for (final p in period.iterateBounds(min, max)) {
+      ret.add(p);
     }
     return ret;
   }

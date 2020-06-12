@@ -17,6 +17,7 @@ class ChartController<T1, T2> implements Listenable {
   ChartMapper<T1, T2> mapper;
   ChartMarkersPointer<T1, T2> markersPointer;
   PointPressedCallback<T1, T2> pointPressed;
+  ChartBounds<T1, T2> bounds;
   SwipedCallback swiped;
 
   void redraw() {
@@ -32,6 +33,7 @@ class ChartController<T1, T2> implements Listenable {
     this.mapper,
     this.markersPointer,
     TickerProvider vsync, {
+    this.bounds,
     this.theme = const ChartTheme(),
     ChartState state = null,
     this.pointPressed,
@@ -61,19 +63,21 @@ class ChartController<T1, T2> implements Listenable {
   AnimationController moveAnimationController;
 
   void initLayers() {
-    _baseLayer = ChartDrawBaseLayer.calculate(data, theme, state, mapper);
+    _baseLayer = ChartDrawBaseLayer.calculate(data, theme, state, mapper, bounds);
     _interactionLayer = ChartInteractionLayer<T1, T2>.calculate(
       data,
       theme,
       state,
       mapper,
       pointPressed: pointPressed,
+      bounds: bounds,
     );
     _decorationLayer = ChartDecorationLayer.calculate(
       data: data,
       theme: theme,
       markersPointer: markersPointer,
       mapper: mapper,
+      bounds: bounds,
     );
   }
 
@@ -155,6 +159,8 @@ class ChartController<T1, T2> implements Listenable {
   Future<void> move(
     ChartData<T1, T2> to, {
     MoveAnimation animation,
+    ChartBounds<T1, T2> boundsFrom,
+    ChartBounds<T1, T2> boundsTo,
   }) async {
     state.isSwitching = true;
 
@@ -168,6 +174,8 @@ class ChartController<T1, T2> implements Listenable {
             _lastSwipeDirection,
             initialOffset: _lastDraggingOffset,
           ),
+          boundsFrom: boundsFrom ?? bounds,
+          boundsTo: boundsTo ?? bounds,
         );
         _swipeAnimationExpected = false;
       } else {

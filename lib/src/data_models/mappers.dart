@@ -13,21 +13,25 @@ class ChartMapper<TAbscissa, TOrdinate> {
   ChartMapper(this.abscissaMapper, this.ordinateMapper);
 
   T minOfEntities<T>(EntityMapper<T> mapper, Iterable<T> entities) {
-    return entities
-        .reduce((a, b) => mapper.compare(a, b) < 0 ? a : b);
+    return entities.reduce((a, b) => mapper.compare(a, b) < 0 ? a : b);
   }
 
   T maxOfEntities<T>(EntityMapper<T> mapper, Iterable<T> entities) {
-    return entities
-        .reduce((a, b) => mapper.compare(a, b) > 0 ? a : b);
+    return entities.reduce((a, b) => mapper.compare(a, b) > 0 ? a : b);
   }
 
   Iterable<TOrdinate> flatOrdinates(ChartData<TAbscissa, TOrdinate> data) {
-    return data.series.map((e) => e.entities).expand((e) => e).map((e) => e.ordinate);
+    return data.series
+        .map((e) => e.entities)
+        .expand((e) => e)
+        .map((e) => e.ordinate);
   }
 
   Iterable<TAbscissa> flatAbscissas(ChartData<TAbscissa, TOrdinate> data) {
-    return data.series.map((e) => e.entities).expand((e) => e).map((e) => e.abscissa);
+    return data.series
+        .map((e) => e.entities)
+        .expand((e) => e)
+        .map((e) => e.abscissa);
   }
 
   TOrdinate minOrdinate(ChartData<TAbscissa, TOrdinate> data) {
@@ -46,12 +50,15 @@ class ChartMapper<TAbscissa, TOrdinate> {
     return maxOfEntities(abscissaMapper, flatAbscissas(data));
   }
 
-  ChartBounds<TAbscissa, TOrdinate> getBounds(ChartData<TAbscissa, TOrdinate> data) {
+  ChartBounds<TAbscissa, TOrdinate> getBounds(
+    ChartData<TAbscissa, TOrdinate> data, {
+    ChartBounds<TAbscissa, TOrdinate> or,
+  }) {
     return ChartBounds(
-      minAbscissa(data),
-      maxAbscissa(data),
-      minOrdinate(data),
-      maxOrdinate(data),
+      or?.minAbscissa ?? minAbscissa(data),
+      or?.maxAbscissa ?? maxAbscissa(data),
+      or?.minOrdinate ?? minOrdinate(data),
+      or?.maxOrdinate ?? maxOrdinate(data),
     );
   }
 }

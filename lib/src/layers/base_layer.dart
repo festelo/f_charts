@@ -27,13 +27,14 @@ class ChartDrawBaseLayer extends Layer {
     ChartData data,
     ChartTheme theme,
     ChartState state,
-    ChartMapper mapper,
-  ) {
-    final bounds = ChartBoundsDoubled.fromData(data, mapper);
+    ChartMapper mapper, [
+    ChartBounds bounds,
+  ]) {
+    final boundsDoubled = ChartBoundsDoubled.fromDataOr(data, mapper, bounds);
     final layer = ChartDrawBaseLayer(theme: theme, state: state);
 
     for (final s in data.series) {
-      layer._placeSeries(s, bounds, mapper);
+      layer._placeSeries(s, boundsDoubled, mapper);
     }
     return layer;
   }
@@ -54,7 +55,8 @@ class ChartDrawBaseLayer extends Layer {
       placeLine(ao, bo, series.color);
       placePoint(ao, series.color);
     }
-    placePoint(bo ?? series.entities[0].toRelativeOffset(mapper, bounds), series.color);
+    placePoint(bo ?? series.entities[0].toRelativeOffset(mapper, bounds),
+        series.color);
   }
 
   void placePoint(RelativeOffset o, Color color) {

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class Chart<T1, T2> extends StatefulWidget {
   final ChartData<T1, T2> chartData;
   final ChartMapper<T1, T2> mapper;
+  final ChartBounds<T1, T2> bounds;
   final ChartMarkersPointer<T1, T2> markersPointer;
   final ChartTheme theme;
   final ChartGestureHandlerBuilder gestureHandlerBuilder;
@@ -23,13 +24,15 @@ class Chart<T1, T2> extends StatefulWidget {
     this.markersPointer,
     this.swiped,
     this.gestureHandlerBuilder = const PointerHandlerBuilder(),
+    this.bounds,
   }) : assert((theme.yMarkers != null || theme.xMarkers != null) &&
             markersPointer != null);
   @override
   _ChartState createState() => _ChartState<T1, T2>();
 }
 
-class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProviderStateMixin {
+class _ChartState<T1, T2> extends State<Chart<T1, T2>>
+    with SingleTickerProviderStateMixin {
   ChartController<T1, T2> chartController;
   ChartGestureHandler gestureHandler;
 
@@ -44,6 +47,7 @@ class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProvider
       theme: widget.theme,
       pointPressed: widget.pointPressed,
       swiped: widget.swiped,
+      bounds: widget.bounds,
     );
     gestureHandler = widget.gestureHandlerBuilder.build(chartController);
     chartController.initLayers();
@@ -74,10 +78,16 @@ class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProvider
     if (oldWidget.swiped != widget.swiped) {
       chartController.swiped = widget.swiped;
     }
-    if (oldWidget.chartData != widget.chartData) {
-      await startAnimation(widget.chartData);
+    if (oldWidget.bounds != widget.bounds) {
+      chartController.bounds = widget.bounds;
     }
-    else {
+    if (oldWidget.chartData != widget.chartData) {
+      await startAnimation(
+        widget.chartData,
+        boundsFrom: oldWidget.bounds,
+        boundsTo: widget.bounds,
+      );
+    } else {
       chartController.redraw();
     }
   }
@@ -88,7 +98,11 @@ class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProvider
     chartController?.dispose();
   }
 
-  Future<void> startAnimation(ChartData<T1, T2> to) async {
+  Future<void> startAnimation(
+    ChartData<T1, T2> to, {
+    ChartBounds<T1, T2> boundsFrom,
+    ChartBounds<T1, T2> boundsTo,
+  }) async {
     await chartController.move(to);
   }
 

@@ -39,7 +39,15 @@ class ChartBounds<TAbscissa, TOrdinate> {
     this.maxAbscissa,
     this.minOrdinate,
     this.maxOrdinate,
-  );
+  ) : assert(minOrdinate != maxOrdinate && minAbscissa != maxAbscissa,
+            'min and max bounds can\'t be equal');
+
+  ChartBounds.only({
+    this.minAbscissa,
+    this.maxAbscissa,
+    this.minOrdinate,
+    this.maxOrdinate,
+  });
 }
 
 class ChartBoundsDoubled extends ChartBounds<double, double> {
@@ -67,6 +75,14 @@ class ChartBoundsDoubled extends ChartBounds<double, double> {
     ChartMapper<T1, T2> mapper,
   ) {
     return fromBounds(mapper.getBounds(data), mapper);
+  }
+
+  static ChartBoundsDoubled fromDataOr<T1, T2>(
+    ChartData<T1, T2> data,
+    ChartMapper<T1, T2> mapper,
+    ChartBounds<T1, T2> or,
+  ) {
+    return fromBounds(mapper.getBounds(data, or: or), mapper);
   }
 }
 

@@ -25,13 +25,15 @@ class PointsNameLayer extends Layer {
     ChartData data,
     ChartTheme theme,
     ChartState state,
-    ChartMapper mapper,
-  ) {
-    final bounds = ChartBoundsDoubled.fromBounds(mapper.getBounds(data), mapper);
+    ChartMapper mapper, [
+    ChartBounds bounds,
+  ]) {
+    bounds ??= mapper.getBounds(data, or: bounds);
+    final boundsDoubled = ChartBoundsDoubled.fromBounds(bounds, mapper);
     final layer = PointsNameLayer(theme: theme, state: state);
 
     for (final s in data.series) {
-      layer._placeTexts(s, bounds, mapper);
+      layer._placeTexts(s, boundsDoubled, mapper);
     }
     return layer;
   }

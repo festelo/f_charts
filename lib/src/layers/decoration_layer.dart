@@ -27,11 +27,12 @@ class ChartDecorationLayer extends Layer {
     @required ChartTheme theme,
     @required ChartMarkersPointer markersPointer,
     @required ChartMapper mapper,
+    ChartBounds bounds,
   }) {
+    bounds = mapper.getBounds(data, or: bounds);
     final layer = ChartDecorationLayer(theme: theme);
     layer.placeXAxisLine();
     layer.placeYAxisLine();
-    final bounds = mapper.getBounds(data);
     layer.placeYMarkers(bounds, mapper, markersPointer);
     layer.placeXMarkers(bounds, mapper, markersPointer);
     return layer;
