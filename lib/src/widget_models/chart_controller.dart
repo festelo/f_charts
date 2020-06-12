@@ -23,7 +23,7 @@ class ChartController<T1, T2> implements Listenable {
   final ChartMapper<T1, T2> mapper;
   final ChartMarkersPointer<T1, T2> markersPointer;
 
-  final PointPressedCallback pointPressed;
+  final PointPressedCallback<T1, T2> pointPressed;
   final SwipedCallback swiped;
 
   ChartData<T1, T2> data;
@@ -64,7 +64,7 @@ class ChartController<T1, T2> implements Listenable {
 
   void initLayers() {
     _baseLayer = ChartDrawBaseLayer.calculate(data, theme, state, mapper);
-    _interactionLayer = ChartInteractionLayer.calculate(
+    _interactionLayer = ChartInteractionLayer<T1, T2>.calculate(
       data,
       theme,
       state,

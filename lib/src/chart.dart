@@ -12,7 +12,7 @@ class Chart<T1, T2> extends StatefulWidget {
   final ChartTheme theme;
   final ChartGestureHandlerBuilder gestureHandlerBuilder;
 
-  final PointPressedCallback pointPressed;
+  final PointPressedCallback<T1, T2> pointPressed;
   final SwipedCallback swiped;
 
   Chart({
@@ -26,17 +26,17 @@ class Chart<T1, T2> extends StatefulWidget {
   }) : assert((theme.yMarkers != null || theme.xMarkers != null) &&
             markersPointer != null);
   @override
-  _ChartState createState() => _ChartState();
+  _ChartState createState() => _ChartState<T1, T2>();
 }
 
-class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
+class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProviderStateMixin {
   ChartController chartController;
   ChartGestureHandler gestureHandler;
 
   @override
   void initState() {
     super.initState();
-    chartController = ChartController(
+    chartController = ChartController<T1, T2>(
       widget.chartData,
       widget.mapper,
       widget.markersPointer,
@@ -53,7 +53,7 @@ class _ChartState extends State<Chart> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(Chart oldWidget) {
+  void didUpdateWidget(Chart<T1, T2> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chartData != widget.chartData) {
       startAnimation(widget.chartData);

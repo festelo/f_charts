@@ -33,7 +33,7 @@ class ChartInteractionLayer<T1, T2> extends Layer {
   final ChartMapper<T1, T2> mapper;
   final ChartBoundsDoubled bounds;
 
-  final void Function(ChartEntity<T1, T2> e) pointPressed;
+  final PointPressedCallback<T1, T2> pointPressed;
 
   Size cachedSize;
 
@@ -75,7 +75,7 @@ class ChartInteractionLayer<T1, T2> extends Layer {
     ChartTheme theme,
     ChartState state,
     ChartMapper<T1, T2> mapper, {
-    PointPressedCallback pointPressed,
+    PointPressedCallback<T1, T2> pointPressed,
   }) {
     final bounds = ChartBoundsDoubled.fromData(data, mapper);
     final layer = ChartInteractionLayer<T1, T2>(
