@@ -20,25 +20,49 @@ class ChartController<T1, T2> implements Listenable {
     notifyListeners();
   }
 
-  final ChartMapper<T1, T2> mapper;
-  final ChartMarkersPointer<T1, T2> markersPointer;
+  ChartMapper<T1, T2> _mapper;
+  ChartMapper<T1, T2> get mapper => _mapper;
+  void set mapper(ChartMapper<T1, T2> value) {
+    _mapper = value;
+    initLayers();
+    notifyListeners();
+  }
 
-  final PointPressedCallback<T1, T2> pointPressed;
+  ChartMarkersPointer<T1, T2> _markersPointer;
+  ChartMarkersPointer<T1, T2> get markersPointer => _markersPointer;
+  void set markersPointer(ChartMarkersPointer<T1, T2> value) {
+    _markersPointer = value;
+    initLayers();
+    notifyListeners();
+  }
+
+
+  PointPressedCallback<T1, T2> _pointPressed;
+  PointPressedCallback<T1, T2> get pointPressed => _pointPressed;
+  void set pointPressed(PointPressedCallback<T1, T2> value) {
+    _pointPressed = value;
+    initLayers();
+    notifyListeners();
+  }
+  
   final SwipedCallback swiped;
 
   ChartData<T1, T2> data;
 
   ChartController(
     this.data,
-    this.mapper,
-    this.markersPointer,
+    ChartMapper<T1, T2> mapper,
+    ChartMarkersPointer<T1, T2> markersPointer,
     TickerProvider vsync, {
     ChartTheme theme = const ChartTheme(),
     ChartState state = null,
-    this.pointPressed,
+    PointPressedCallback<T1, T2> pointPressed,
     this.swiped,
   })  : state = state ?? ChartState(),
         _theme = theme,
+        _mapper = mapper,
+        _markersPointer = markersPointer,
+        _pointPressed = pointPressed,
         moveAnimationController = AnimationController(
           vsync: vsync,
           duration: Duration(milliseconds: 500),
@@ -177,10 +201,10 @@ class ChartController<T1, T2> implements Listenable {
       }
     }
 
-    var fromToPointsDifferent = animation.series.every(
-      (e) => const DeepCollectionEquality().equals(
-        e.points(AlwaysStoppedAnimation(0)),
-        e.points(AlwaysStoppedAnimation(1)),
+    var fromToPointsDifferent = animation.series.any(
+      (e) => !const DeepCollectionEquality().equals(
+        e.points(AlwaysStoppedAnimation(0.0)).map((e) => Pair(e.dx.toStringAsFixed(5), e.dy.toStringAsFixed(5))),
+        e.points(AlwaysStoppedAnimation(1.0)).map((e) => Pair(e.dx.toStringAsFixed(5), e.dy.toStringAsFixed(5)))
       ),
     );
     if (fromToPointsDifferent) {

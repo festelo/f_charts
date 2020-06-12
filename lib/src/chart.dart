@@ -30,7 +30,7 @@ class Chart<T1, T2> extends StatefulWidget {
 }
 
 class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProviderStateMixin {
-  ChartController chartController;
+  ChartController<T1, T2> chartController;
   ChartGestureHandler gestureHandler;
 
   @override
@@ -55,11 +55,24 @@ class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProvider
   @override
   void didUpdateWidget(Chart<T1, T2> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.chartData != widget.chartData) {
-      startAnimation(widget.chartData);
-    }
+    asyncUpdate(oldWidget);
+  }
+
+  Future<void> asyncUpdate(Chart<T1, T2> oldWidget) async {
     if (oldWidget.theme != widget.theme) {
       chartController.theme = widget.theme;
+    }
+    if (oldWidget.chartData != widget.chartData) {
+      await startAnimation(widget.chartData);
+    }
+    if (oldWidget.markersPointer != widget.markersPointer) {
+      chartController.markersPointer = widget.markersPointer;
+    }
+    if (oldWidget.mapper != widget.mapper) {
+      chartController.mapper = widget.mapper;
+    }
+    if (oldWidget.pointPressed != widget.pointPressed) {
+      chartController.pointPressed = widget.pointPressed;
     }
   }
 
@@ -69,7 +82,7 @@ class _ChartState<T1, T2> extends State<Chart<T1, T2>> with SingleTickerProvider
     chartController?.dispose();
   }
 
-  Future<void> startAnimation(ChartData to) async {
+  Future<void> startAnimation(ChartData<T1, T2> to) async {
     await chartController.move(to);
   }
 
